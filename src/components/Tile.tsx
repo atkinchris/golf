@@ -30,8 +30,17 @@ const Green: TileType = ({ size, x, y }) => (
 const Rough: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
     <defs>
-      <pattern id="patternRough" patternUnits="userSpaceOnUse" width="6" height="1" patternTransform="rotate(45)">
-        <rect x="0" y="0" width="2" height="1" fill="#C9C9C9" />
+      <pattern
+        id="patternRough"
+        patternUnits="userSpaceOnUse"
+        width="16"
+        height="16"
+        viewBox="0 0 4 4"
+        patternTransform="rotate(90)"
+      >
+        <line x1="0" y1="0" x2="100%" y2="100%" stroke="#C9C9C9" strokeWidth="1" transform="translate(-2, 2)" />
+        <line x1="0" y1="0" x2="100%" y2="100%" stroke="#C9C9C9" strokeWidth="1" />
+        <line x1="0" y1="0" x2="100%" y2="100%" stroke="#C9C9C9" strokeWidth="1" transform="translate(2, -2)" />
       </pattern>
     </defs>
     <rect x="0" y="0" width="32" height="32" fill="url(#patternRough)" />
