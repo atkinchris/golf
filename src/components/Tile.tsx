@@ -22,6 +22,7 @@ const DOT_RADIUS = 2.5
 
 const COLOURS = {
   DARK: '#202020',
+  GREEN: '#CBCBCB',
 }
 
 const calculateClipPath = (self: Tile, neighbours: TileProps['neighbours']): string | undefined => {
@@ -62,7 +63,14 @@ const Fairway: TileType = ({ size, x, y }) => (
 
 const Green: TileType = ({ size, x, y, neighbours }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <rect x="0" y="0" width="32" height="32" fill="#CBCBCB" clipPath={calculateClipPath(Tile.Green, neighbours)} />
+    <rect
+      x="0"
+      y="0"
+      width="32"
+      height="32"
+      fill={COLOURS.GREEN}
+      clipPath={calculateClipPath(Tile.Green, neighbours)}
+    />
     <circle cx={16} cy={16} r={DOT_RADIUS} fill={COLOURS.DARK} />
   </svg>
 )
@@ -124,14 +132,14 @@ const Tree: TileType = ({ size, x, y }) => {
 
 const Tee: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <rect x="0" y="0" width="32" height="32" fill="#CBCBCB" />
+    <rect x="0" y="0" width="32" height="32" fill={COLOURS.GREEN} />
     <circle cx={16} cy={16} r={12} fill="#FFFFFF" stroke={COLOURS.DARK} strokeWidth={6} />
   </svg>
 )
 
 const Hole: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <rect x="0" y="0" width="32" height="32" fill="#CBCBCB" />
+    <rect x="0" y="0" width="32" height="32" fill={COLOURS.GREEN} />
     <circle cx={16} cy={16} r={12} fill={COLOURS.DARK} />
   </svg>
 )
