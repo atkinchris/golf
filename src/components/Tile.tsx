@@ -20,6 +20,10 @@ type TileType = React.FunctionComponent<Omit<TileProps, 'type'>>
 
 const DOT_RADIUS = 2.5
 
+const COLOURS = {
+  DARK: '#202020',
+}
+
 const calculateClipPath = (self: Tile, neighbours: TileProps['neighbours']): string | undefined => {
   const n = neighbours.N === self
   const e = neighbours.E === self
@@ -59,7 +63,7 @@ const Fairway: TileType = ({ size, x, y }) => (
 const Green: TileType = ({ size, x, y, neighbours }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
     <rect x="0" y="0" width="32" height="32" fill="#CBCBCB" clipPath={calculateClipPath(Tile.Green, neighbours)} />
-    <circle cx={16} cy={16} r={DOT_RADIUS} fill="#444444" />
+    <circle cx={16} cy={16} r={DOT_RADIUS} fill={COLOURS.DARK} />
   </svg>
 )
 
@@ -87,13 +91,13 @@ const Rough: TileType = ({ size, x, y, neighbours }) => (
       fill="url(#patternRough)"
       clipPath={calculateClipPath(Tile.Rough, neighbours)}
     />
-    <circle cx={16} cy={16} r={DOT_RADIUS} fill="#444444" />
+    <circle cx={16} cy={16} r={DOT_RADIUS} fill={COLOURS.DARK} />
   </svg>
 )
 
 const Water: TileType = ({ size, x, y, neighbours }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <rect x="0" y="0" width="32" height="32" fill="#444444" clipPath={calculateClipPath(Tile.Water, neighbours)} />
+    <rect x="0" y="0" width="32" height="32" fill={COLOURS.DARK} clipPath={calculateClipPath(Tile.Water, neighbours)} />
     <circle cx={16} cy={16} r={DOT_RADIUS} fill="#CBCBCB" />
   </svg>
 )
@@ -105,13 +109,13 @@ const Tree: TileType = ({ size, x, y }) => {
     <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
       <path
         d={trianglePath.path}
-        fill="#202020"
+        fill={COLOURS.DARK}
         transform="translate(0 -6) scale(0.8 0.6)"
         style={{ transformOrigin: 'center' }}
       />
       <path
         d={trianglePath.path}
-        fill="#202020"
+        fill={COLOURS.DARK}
         transform="translate(0 4) scale(0.8 0.6)"
         style={{ transformOrigin: 'center' }}
       />
@@ -122,14 +126,14 @@ const Tree: TileType = ({ size, x, y }) => {
 const Tee: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
     <rect x="0" y="0" width="32" height="32" fill="#CBCBCB" />
-    <circle cx={16} cy={16} r={12} fill="#FFFFFF" stroke="#202020" strokeWidth={6} />
+    <circle cx={16} cy={16} r={12} fill="#FFFFFF" stroke={COLOURS.DARK} strokeWidth={6} />
   </svg>
 )
 
 const Hole: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
     <rect x="0" y="0" width="32" height="32" fill="#CBCBCB" />
-    <circle cx={16} cy={16} r={12} fill="#202020" />
+    <circle cx={16} cy={16} r={12} fill={COLOURS.DARK} />
   </svg>
 )
 
