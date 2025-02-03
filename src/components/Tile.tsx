@@ -86,6 +86,7 @@ const Rough: TileType = ({ size, x, y, neighbours }) => (
         viewBox="0 0 4 4"
         patternTransform="rotate(90)"
       >
+        <rect x="0" y="0" width="100%" height="100%" fill="#FFFFFF" />
         <line x1="0" y1="0" x2="100%" y2="100%" stroke="#C9C9C9" strokeWidth="1" transform="translate(-2, 2)" />
         <line x1="0" y1="0" x2="100%" y2="100%" stroke="#C9C9C9" strokeWidth="1" />
         <line x1="0" y1="0" x2="100%" y2="100%" stroke="#C9C9C9" strokeWidth="1" transform="translate(2, -2)" />
