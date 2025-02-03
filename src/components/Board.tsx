@@ -23,9 +23,37 @@ export default function Board({ data, height, width, size = DEFAULT_SIZE }: Boar
           <circle cx="0.5" cy="0.5" r="0.5" />
           <rect x="0" y="0.5" width="1" height="0.5" />
         </clipPath>
+        <clipPath id="clip-top-left" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+          {/* <rect x="0" y="0" width="0.5" height="0.5" /> */}
+          <rect x="0.5" y="0" width="0.5" height="0.5" />
+          <rect x="0" y="0.5" width="0.5" height="0.5" />
+          <rect x="0.5" y="0.5" width="0.5" height="0.5" />
+        </clipPath>
+        <clipPath id="clip-top-right" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+          <rect x="0" y="0" width="0.5" height="0.5" />
+          {/* <rect x="0.5" y="0" width="0.5" height="0.5" /> */}
+          <rect x="0" y="0.5" width="0.5" height="0.5" />
+          <rect x="0.5" y="0.5" width="0.5" height="0.5" />
+        </clipPath>
         <clipPath id="clip-bottom" clipPathUnits="objectBoundingBox">
           <circle cx="0.5" cy="0.5" r="0.5" />
           <rect x="0" y="0" width="1" height="0.5" />
+        </clipPath>
+        <clipPath id="clip-bottom-left" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+          <rect x="0" y="0" width="0.5" height="0.5" />
+          <rect x="0.5" y="0" width="0.5" height="0.5" />
+          {/* <rect x="0" y="0.5" width="0.5" height="0.5" /> */}
+          <rect x="0.5" y="0.5" width="0.5" height="0.5" />
+        </clipPath>
+        <clipPath id="clip-bottom-right" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+          <rect x="0" y="0" width="0.5" height="0.5" />
+          <rect x="0.5" y="0" width="0.5" height="0.5" />
+          <rect x="0" y="0.5" width="0.5" height="0.5" />
+          {/* <rect x="0.5" y="0.5" width="0.5" height="0.5" /> */}
         </clipPath>
         <clipPath id="clip-left" clipPathUnits="objectBoundingBox">
           <circle cx="0.5" cy="0.5" r="0.5" />

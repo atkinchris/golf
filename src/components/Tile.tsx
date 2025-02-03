@@ -31,6 +31,14 @@ const calculateClipPath = (self: Tile, neighbours: TileProps['neighbours']): str
   switch (map) {
     case '1000':
       return 'url(#clip-bottom)'
+    case '1100':
+      return 'url(#clip-bottom-left)'
+    case '1001':
+      return 'url(#clip-bottom-right)'
+    case '0110':
+      return 'url(#clip-top-left)'
+    case '0011':
+      return 'url(#clip-top-right)'
     case '0100':
       return 'url(#clip-left)'
     case '0010':
