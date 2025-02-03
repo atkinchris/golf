@@ -98,7 +98,6 @@ const Rough: TileType = ({ size, x, y, neighbours }) => (
 const Water: TileType = ({ size, x, y, neighbours }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
     <rect x="0" y="0" width="32" height="32" fill={COLOURS.DARK} clipPath={calculateClipPath(Tile.Water, neighbours)} />
-    <circle cx={16} cy={16} r={DOT_RADIUS} fill="#CBCBCB" />
   </svg>
 )
 
