@@ -8,11 +8,39 @@ interface TileProps {
   y: number
   size: number
   type: Tile
+  neighbours: {
+    N: Tile | null
+    E: Tile | null
+    S: Tile | null
+    W: Tile | null
+  }
 }
 
 type TileType = React.FunctionComponent<Omit<TileProps, 'type'>>
 
 const DOT_RADIUS = 2.5
+
+const calculateClipPath = (self: Tile, neighbours: TileProps['neighbours']): string | undefined => {
+  const n = neighbours.N === self
+  const e = neighbours.E === self
+  const s = neighbours.S === self
+  const w = neighbours.W === self
+
+  const map = [n, e, s, w].map(v => (v ? 1 : 0)).join('')
+
+  switch (map) {
+    case '1000':
+      return 'url(#clip-bottom)'
+    case '0100':
+      return 'url(#clip-left)'
+    case '0010':
+      return 'url(#clip-top)'
+    case '0001':
+      return 'url(#clip-right)'
+    default:
+      return undefined
+  }
+}
 
 const Fairway: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
@@ -20,14 +48,14 @@ const Fairway: TileType = ({ size, x, y }) => (
   </svg>
 )
 
-const Green: TileType = ({ size, x, y }) => (
+const Green: TileType = ({ size, x, y, neighbours }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <rect x="0" y="0" width="32" height="32" fill="#CBCBCB" />
+    <rect x="0" y="0" width="32" height="32" fill="#CBCBCB" clipPath={calculateClipPath(Tile.Green, neighbours)} />
     <circle cx={16} cy={16} r={DOT_RADIUS} fill="#444444" />
   </svg>
 )
 
-const Rough: TileType = ({ size, x, y }) => (
+const Rough: TileType = ({ size, x, y, neighbours }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
     <defs>
       <pattern
@@ -43,14 +71,21 @@ const Rough: TileType = ({ size, x, y }) => (
         <line x1="0" y1="0" x2="100%" y2="100%" stroke="#C9C9C9" strokeWidth="1" transform="translate(2, -2)" />
       </pattern>
     </defs>
-    <rect x="0" y="0" width="32" height="32" fill="url(#patternRough)" />
+    <rect
+      x="0"
+      y="0"
+      width="32"
+      height="32"
+      fill="url(#patternRough)"
+      clipPath={calculateClipPath(Tile.Rough, neighbours)}
+    />
     <circle cx={16} cy={16} r={DOT_RADIUS} fill="#444444" />
   </svg>
 )
 
-const Water: TileType = ({ size, x, y }) => (
+const Water: TileType = ({ size, x, y, neighbours }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <rect x="0" y="0" width="32" height="32" fill="#444444" />
+    <rect x="0" y="0" width="32" height="32" fill="#444444" clipPath={calculateClipPath(Tile.Water, neighbours)} />
     <circle cx={16} cy={16} r={DOT_RADIUS} fill="#CBCBCB" />
   </svg>
 )
@@ -90,22 +125,22 @@ const Hole: TileType = ({ size, x, y }) => (
   </svg>
 )
 
-export default function TileElement({ size, type, x, y }: TileProps): ReactNode {
+export default function TileElement({ type, ...props }: TileProps): ReactNode {
   switch (type) {
     case Tile.Green:
-      return <Green size={size} x={x} y={y} />
+      return <Green {...props} />
     case Tile.Fairway:
-      return <Fairway size={size} x={x} y={y} />
+      return <Fairway {...props} />
     case Tile.Rough:
-      return <Rough size={size} x={x} y={y} />
+      return <Rough {...props} />
     case Tile.Water:
-      return <Water size={size} x={x} y={y} />
+      return <Water {...props} />
     case Tile.Tree:
-      return <Tree size={size} x={x} y={y} />
+      return <Tree {...props} />
     case Tile.Tee:
-      return <Tee size={size} x={x} y={y} />
+      return <Tee {...props} />
     case Tile.Hole:
-      return <Hole size={size} x={x} y={y} />
+      return <Hole {...props} />
     default:
       return null
   }

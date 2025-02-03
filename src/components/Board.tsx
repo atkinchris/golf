@@ -18,9 +18,46 @@ export default function Board({ data, height, width, size = DEFAULT_SIZE }: Boar
       width={width * size}
       height={height * size}
     >
-      {data.map((type, index) => (
-        <TileElement key={index} x={index % width} y={Math.floor(index / width)} size={size} type={type} />
-      ))}
+      <defs>
+        <clipPath id="clip-top" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+          <rect x="0" y="0.5" width="1" height="0.5" />
+        </clipPath>
+        <clipPath id="clip-bottom" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+          <rect x="0" y="0" width="1" height="0.5" />
+        </clipPath>
+        <clipPath id="clip-left" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+          <rect x="0.5" y="0" width="1" height="1" />
+        </clipPath>
+        <clipPath id="clip-right" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+          <rect x="0" y="0" width="0.5" height="1" />
+        </clipPath>
+      </defs>
+      {data.map((type, index) => {
+        const x = index % width
+        const y = Math.floor(index / width)
+
+        const neighbours = {
+          N: y > 0 ? data[index - width] : null,
+          E: x < width - 1 ? data[index + 1] : null,
+          S: y < height - 1 ? data[index + width] : null,
+          W: x > 0 ? data[index - 1] : null,
+        }
+
+        return (
+          <TileElement
+            key={index}
+            x={index % width}
+            y={Math.floor(index / width)}
+            size={size}
+            type={type}
+            neighbours={neighbours}
+          />
+        )
+      })}
     </svg>
   )
 }
