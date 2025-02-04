@@ -59,9 +59,17 @@ export default function Home() {
     { x: 14, y: 4, tile: Tile.Hole },
   ]
 
+  const shots = [
+    { x: 4, y: 20 },
+    { x: 7, y: 17 },
+    { x: 7, y: 10 },
+    { x: 12, y: 5 },
+    { x: 13, y: 4 },
+  ]
+
   return (
     <main>
-      <Board tiles={tiles} objects={objects} height={26} width={16} />
+      <Board tiles={tiles} objects={objects} shots={shots} height={26} width={16} />
     </main>
   )
 }

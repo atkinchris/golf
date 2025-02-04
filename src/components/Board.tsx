@@ -5,6 +5,7 @@ import { Tile } from '@/types'
 interface BoardProps {
   tiles: Tile[]
   objects: { x: number; y: number; tile: Tile }[]
+  shots: { x: number; y: number }[]
   height: number
   width: number
   size?: number
@@ -12,7 +13,7 @@ interface BoardProps {
 
 const DEFAULT_SIZE = 32
 
-export default function Board({ tiles, objects, height, width, size = DEFAULT_SIZE }: BoardProps): ReactNode {
+export default function Board({ tiles, objects, shots, height, width, size = DEFAULT_SIZE }: BoardProps): ReactNode {
   return (
     <svg
       viewBox={`0 0 ${(width * size).toString()} ${(height * size).toString()}`}
@@ -89,6 +90,9 @@ export default function Board({ tiles, objects, height, width, size = DEFAULT_SI
       })}
       {objects.map(({ x, y, tile }, index) => (
         <TileElement key={index} x={x} y={y} size={size} type={tile} />
+      ))}
+      {shots.slice(1).map(({ x, y }, index) => (
+        <TileElement key={index} x={x} y={y} size={size} type={Tile.Shot} />
       ))}
     </svg>
   )

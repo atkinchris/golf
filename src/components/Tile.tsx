@@ -145,6 +145,12 @@ const Hole: TileType = ({ size, x, y }) => (
   </svg>
 )
 
+const Shot: TileType = ({ size, x, y }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
+    <circle cx={16} cy={16} r={12} fill="#FFFFFF" stroke={COLOURS.DARK} strokeWidth={6} />
+  </svg>
+)
+
 export default function TileElement({ type, ...props }: TileProps): ReactNode {
   switch (type) {
     case Tile.Green:
@@ -161,6 +167,8 @@ export default function TileElement({ type, ...props }: TileProps): ReactNode {
       return <Tee {...props} />
     case Tile.Hole:
       return <Hole {...props} />
+    case Tile.Shot:
+      return <Shot {...props} />
     default:
       return null
   }
