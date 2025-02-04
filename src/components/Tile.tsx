@@ -8,7 +8,7 @@ interface TileProps {
   y: number
   size: number
   type: Tile
-  neighbours: {
+  neighbours?: {
     N: Tile | null
     E: Tile | null
     S: Tile | null
@@ -25,7 +25,9 @@ const COLOURS = {
   GREEN: '#CBCBCB',
 }
 
-const calculateClipPath = (self: Tile, neighbours: TileProps['neighbours']): string | undefined => {
+const calculateClipPath = (self: Tile, neighbours?: TileProps['neighbours']): string | undefined => {
+  if (!neighbours) return undefined
+
   const n = neighbours.N === self
   const e = neighbours.E === self
   const s = neighbours.S === self
@@ -133,14 +135,12 @@ const Tree: TileType = ({ size, x, y }) => {
 
 const Tee: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <rect x="0" y="0" width="32" height="32" fill={COLOURS.GREEN} />
     <circle cx={16} cy={16} r={12} fill="#FFFFFF" stroke={COLOURS.DARK} strokeWidth={6} />
   </svg>
 )
 
 const Hole: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <rect x="0" y="0" width="32" height="32" fill={COLOURS.GREEN} />
     <circle cx={16} cy={16} r={12} fill={COLOURS.DARK} />
   </svg>
 )

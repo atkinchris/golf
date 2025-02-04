@@ -3,7 +3,8 @@ import TileElement from './Tile'
 import { Tile } from '@/types'
 
 interface BoardProps {
-  data: Tile[]
+  tiles: Tile[]
+  objects: { x: number; y: number; tile: Tile }[]
   height: number
   width: number
   size?: number
@@ -11,7 +12,7 @@ interface BoardProps {
 
 const DEFAULT_SIZE = 32
 
-export default function Board({ data, height, width, size = DEFAULT_SIZE }: BoardProps): ReactNode {
+export default function Board({ tiles, objects, height, width, size = DEFAULT_SIZE }: BoardProps): ReactNode {
   return (
     <svg
       viewBox={`0 0 ${(width * size).toString()} ${(height * size).toString()}`}
@@ -64,15 +65,15 @@ export default function Board({ data, height, width, size = DEFAULT_SIZE }: Boar
           <rect x="0" y="0" width="0.5" height="1" />
         </clipPath>
       </defs>
-      {data.map((type, index) => {
+      {tiles.map((type, index) => {
         const x = index % width
         const y = Math.floor(index / width)
 
         const neighbours = {
-          N: y > 0 ? data[index - width] : null,
-          E: x < width - 1 ? data[index + 1] : null,
-          S: y < height - 1 ? data[index + width] : null,
-          W: x > 0 ? data[index - 1] : null,
+          N: y > 0 ? tiles[index - width] : null,
+          E: x < width - 1 ? tiles[index + 1] : null,
+          S: y < height - 1 ? tiles[index + width] : null,
+          W: x > 0 ? tiles[index - 1] : null,
         }
 
         return (
@@ -86,6 +87,9 @@ export default function Board({ data, height, width, size = DEFAULT_SIZE }: Boar
           />
         )
       })}
+      {objects.map(({ x, y, tile }, index) => (
+        <TileElement key={index} x={x} y={y} size={size} type={tile} />
+      ))}
     </svg>
   )
 }
