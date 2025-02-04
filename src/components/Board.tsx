@@ -97,7 +97,7 @@ export default function Board({ tiles, objects, shots, height, width, size = DEF
         <TileElement key={index} x={x} y={y} size={size} type={tile} />
       ))}
       {shots.length > 1 && (
-        <path d={shotPath} stroke={COLOURS.DARK} strokeWidth="6" fill="none" strokeLinecap="round" />
+        <path d={shotPath} stroke={COLOURS.HIGHLIGHT} strokeWidth="6" fill="none" strokeLinecap="round" />
       )}
       {shots.map(({ x, y }, index) => (
         <TileElement key={index} x={x} y={y} size={size} type={Tile.Shot} />

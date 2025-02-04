@@ -23,6 +23,7 @@ const DOT_RADIUS = 2.5
 export const COLOURS = {
   DARK: '#202020',
   GREEN: '#CBCBCB',
+  HIGHLIGHT: '#FFD700',
 }
 
 const calculateClipPath = (self: Tile, neighbours?: TileProps['neighbours']): string | undefined => {
@@ -147,7 +148,7 @@ const Hole: TileType = ({ size, x, y }) => (
 
 const Shot: TileType = ({ size, x, y }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" x={x * size} y={y * size}>
-    <circle cx={16} cy={16} r={12} fill="#FFFFFF" stroke={COLOURS.DARK} strokeWidth={6} />
+    <circle cx={16} cy={16} r={12} fill="#FFFFFF" stroke={COLOURS.HIGHLIGHT} strokeWidth={6} />
   </svg>
 )
 
