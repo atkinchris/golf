@@ -15,6 +15,11 @@ const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   ...tseslint.configs.strictTypeChecked,
   {
+    rules: {
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+    },
+  },
+  {
     languageOptions: {
       parserOptions: {
         projectService: true,
