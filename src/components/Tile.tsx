@@ -20,7 +20,7 @@ type TileType = React.FunctionComponent<Omit<TileProps, 'type'>>
 
 const DOT_RADIUS = 2.5
 
-const COLOURS = {
+export const COLOURS = {
   DARK: '#202020',
   GREEN: '#CBCBCB',
 }

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import TileElement from './Tile'
+import TileElement, { COLOURS } from './Tile'
 import { Tile } from '@/types'
 
 interface BoardProps {
@@ -14,6 +14,11 @@ interface BoardProps {
 const DEFAULT_SIZE = 32
 
 export default function Board({ tiles, objects, shots, height, width, size = DEFAULT_SIZE }: BoardProps): ReactNode {
+  const shotPath = shots
+    .map(({ x, y }) => ({ x: x * size + size / 2, y: y * size + size / 2 }))
+    .map(({ x, y }, index) => `${index === 0 ? 'M' : 'L'} ${x.toString()} ${y.toString()}`)
+    .join(' ')
+
   return (
     <svg
       viewBox={`0 0 ${(width * size).toString()} ${(height * size).toString()}`}
@@ -91,7 +96,10 @@ export default function Board({ tiles, objects, shots, height, width, size = DEF
       {objects.map(({ x, y, tile }, index) => (
         <TileElement key={index} x={x} y={y} size={size} type={tile} />
       ))}
-      {shots.slice(1).map(({ x, y }, index) => (
+      {shots.length > 1 && (
+        <path d={shotPath} stroke={COLOURS.DARK} strokeWidth="6" fill="none" strokeLinecap="round" />
+      )}
+      {shots.map(({ x, y }, index) => (
         <TileElement key={index} x={x} y={y} size={size} type={Tile.Shot} />
       ))}
     </svg>
