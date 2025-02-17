@@ -29,10 +29,22 @@ export default function getCourse(width: number, height: number, seed: number): 
   const objects = [tee, hole]
 
   const tiles: Tile[] = []
-  const regions = [
-    { x: hole.x, y: hole.y, rx: rngInt(2, 4), ry: rngInt(2, 4), tile: Tile.Green },
-    { x: tee.x, y: tee.y, rx: rngInt(2, 4), ry: rngInt(2, 4), tile: Tile.Green },
-  ]
+  const regions: Region[] = []
+
+  const additionalRegions = rngInt(4, 20)
+  for (let i = 0; i < additionalRegions; i += 1) {
+    regions.push({
+      x: rngInt(0, width),
+      y: rngInt(0, height),
+      rx: rngInt(2, 6),
+      ry: rngInt(2, 3),
+      tile: rngInt(Tile.Green, Tile.Tree),
+    })
+  }
+
+  regions.sort((a, b) => a.tile - b.tile)
+  regions.unshift({ x: hole.x, y: hole.y, rx: rngInt(2, 4), ry: rngInt(2, 4), tile: Tile.Green })
+  regions.unshift({ x: tee.x, y: tee.y, rx: rngInt(2, 4), ry: rngInt(2, 4), tile: Tile.Green })
 
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
