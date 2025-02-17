@@ -1,10 +1,11 @@
 import { ReactNode } from 'react'
-import TileElement, { COLOURS } from './Tile'
-import { Tile } from '@/types'
+
+import TileElement, { COLOURS } from '@/components/Tile'
+import { CourseObject, Tile } from '@/types'
 
 interface BoardProps {
   tiles: Tile[]
-  objects: { x: number; y: number; tile: Tile }[]
+  objects: CourseObject[]
   shots: { x: number; y: number }[]
   height: number
   width: number

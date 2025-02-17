@@ -8,3 +8,9 @@ export enum Tile {
   Tee,
   Shot,
 }
+
+export interface CourseObject {
+  x: number
+  y: number
+  tile: Tile
+}

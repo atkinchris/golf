@@ -1,5 +1,5 @@
 import Board from '@/components/Board'
-import { Tile } from '@/types'
+import getCourse from '@/course'
 
 // Specification:
 // https://en.wikipedia.org/wiki/Geometric_Shapes_(Unicode_block)
@@ -40,24 +40,10 @@ import { Tile } from '@/types'
 // 6 = ○
 
 export default function Home() {
-  const tiles = [
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1,
-    1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 4, 4, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 4, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3,
-    3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 1, 0,
-    0, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  ]
-
-  const objects = [
-    { x: 4, y: 20, tile: Tile.Tee },
-    { x: 14, y: 4, tile: Tile.Hole },
-  ]
+  const width = 16
+  const height = 26
+  const seed = 0
+  const { tiles, objects } = getCourse(width, height, seed)
 
   const shots = [
     { x: 4, y: 20 },
@@ -69,7 +55,7 @@ export default function Home() {
 
   return (
     <main>
-      <Board tiles={tiles} objects={objects} shots={shots} height={26} width={16} />
+      <Board tiles={tiles} objects={objects} shots={shots} height={height} width={width} />
     </main>
   )
 }
