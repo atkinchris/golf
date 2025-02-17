@@ -7,7 +7,18 @@ interface Course {
   objects: CourseObject[]
 }
 
-const isInCircle = (x: number, y: number, cx: number, cy: number, r: number) => (x - cx) ** 2 + (y - cy) ** 2 < r ** 2
+interface Region {
+  x: number
+  y: number
+  rx: number
+  ry: number
+  tile: Tile
+}
+
+function isInRegion(x: number, y: number, region: Region): boolean {
+  const { x: cx, y: cy, rx, ry } = region
+  return (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 < 1
+}
 
 export default function getCourse(width: number, height: number, seed: number): Course {
   const prng = rand.xoroshiro128plus(seed)
@@ -18,20 +29,15 @@ export default function getCourse(width: number, height: number, seed: number): 
   const objects = [tee, hole]
 
   const tiles: Tile[] = []
-  const circles = [
-    { x: hole.x, y: hole.y, r: rngInt(2, 5), type: Tile.Green },
-    { x: tee.x, y: tee.y, r: rngInt(2, 5), type: Tile.Green },
+  const regions = [
+    { x: hole.x, y: hole.y, rx: rngInt(2, 4), ry: rngInt(2, 4), tile: Tile.Green },
+    { x: tee.x, y: tee.y, rx: rngInt(2, 4), ry: rngInt(2, 4), tile: Tile.Green },
   ]
 
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      const overlappingCircle = circles.find(circle => isInCircle(x, y, circle.x, circle.y, circle.r))
-      if (overlappingCircle) {
-        tiles.push(Tile.Green)
-        continue
-      }
-
-      tiles.push(Tile.Fairway)
+      const overlap = regions.find(region => isInRegion(x, y, region))
+      tiles.push(overlap ? overlap.tile : Tile.Fairway)
     }
   }
 
