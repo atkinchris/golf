@@ -1,3 +1,5 @@
+import rand from 'pure-rand'
+
 import { CourseObject, Tile } from '@/types'
 
 interface Course {
@@ -5,26 +7,16 @@ interface Course {
   objects: CourseObject[]
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function getCourse(_width: number, _height: number, _seed: number): Course {
-  const objects = [
-    { x: 4, y: 20, tile: Tile.Tee },
-    { x: 14, y: 4, tile: Tile.Hole },
-  ]
+export default function getCourse(width: number, height: number, seed: number): Course {
+  const prng = rand.xoroshiro128plus(seed)
+  const rngInt = (min: number, max: number) => rand.unsafeUniformIntDistribution(min, max, prng)
 
-  const tiles = [
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1,
-    1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 4, 4, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 4, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3,
-    3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 1, 0,
-    0, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  ]
+  const tiles = Array.from({ length: width * height }, () => 0)
+
+  const tee = { x: rngInt(0 + 1, width - 1), y: height - rngInt(2, 10), tile: Tile.Tee }
+  const hole = { x: rngInt(0 + 1, width - 1), y: 2, tile: Tile.Hole }
+
+  const objects = [tee, hole]
 
   return { tiles, objects }
 }

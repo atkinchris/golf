@@ -39,22 +39,21 @@ import getCourse from '@/course'
 // 5 = ◉
 // 6 = ○
 
-export default function Home() {
+interface Params {
+  seed: number
+}
+
+export default async function Home({ params }: { params: Promise<Params> }) {
   const width = 16
   const height = 26
-  const seed = 0
+  const seed = (await params).seed || 0
   const { tiles, objects } = getCourse(width, height, seed)
 
-  const shots = [
-    { x: 4, y: 20 },
-    { x: 7, y: 17 },
-    { x: 7, y: 10 },
-    { x: 12, y: 5 },
-    { x: 13, y: 4 },
-  ]
+  const shots: never[] = []
 
   return (
     <main>
+      <h1>Seed: {seed}</h1>
       <Board tiles={tiles} objects={objects} shots={shots} height={height} width={width} />
     </main>
   )
