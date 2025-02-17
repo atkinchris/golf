@@ -1,8 +1,10 @@
 'use client'
 
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+
 import Board from '@/components/Board'
 import getCourse from '@/course'
-import { useSearchParams } from 'next/navigation'
 
 // Specification:
 // https://en.wikipedia.org/wiki/Geometric_Shapes_(Unicode_block)
@@ -44,7 +46,7 @@ import { useSearchParams } from 'next/navigation'
 
 const asInt = (value: string | null) => (value ? parseInt(value, 10) : undefined)
 
-export default function Home() {
+function App() {
   const width = 16
   const height = 26
   const searchParams = useSearchParams()
@@ -59,5 +61,13 @@ export default function Home() {
       <h1>Seed: {seed}</h1>
       <Board tiles={tiles} objects={objects} shots={shots} height={height} width={width} />
     </main>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <App />
+    </Suspense>
   )
 }
