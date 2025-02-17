@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.1.6",
+    "next": "15.1.7",
     "pure-rand": "^7.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -18,17 +18,17 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@eslint/js": "^9.19.0",
-    "@types/node": "^20",
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9.19.0",
-    "eslint-config-next": "15.1.6",
+    "eslint": "^9.20.1",
+    "eslint-config-next": "15.1.7",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
-    "prettier": "3.4.2",
+    "prettier": "3.5.1",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.22.0"
+    "typescript-eslint": "^8.24.1"
   },
   "prettier": {
     "printWidth": 120,
