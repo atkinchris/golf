@@ -58,3 +58,7 @@ export default async function Home({ params }: { params: Promise<Params> }) {
     </main>
   )
 }
+
+export function generateStaticParams() {
+  return Array.from({ length: 100 }, (_, i) => ({ params: { seed: i } }))
+}
