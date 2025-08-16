@@ -1,6 +1,14 @@
 import { useState, useCallback } from 'react'
 import type { GameState, Direction, Course } from '../types/game'
-import { rollDice, calculateMovement, validateMove, getTerrainModifier } from '../utils/gameLogic'
+import {
+  rollDice,
+  calculateMovement,
+  validateMove,
+  getTerrainModifier,
+  handleSlopeMovement,
+  checkHoleCompletion,
+  checkHoleOvershoot,
+} from '../utils/gameLogic'
 import { generateBasicCourse } from '../utils/courseGenerator'
 
 const INITIAL_GAME_STATE: GameState = {
@@ -59,10 +67,24 @@ export function useGameState() {
       const actualDistance = Math.max(1, gameState.lastRoll + terrainModifier)
 
       const newPosition = calculateMovement(gameState.ballPosition, direction, actualDistance)
-      const validation = validateMove(gameState.ballPosition, newPosition, course.tiles, actualDistance)
+
+      // Check for hole overshoot
+      const overshoot = checkHoleOvershoot(gameState.ballPosition, newPosition, course.holePosition)
+      const targetPosition =
+        overshoot.isOvershoot && overshoot.correctedPosition ? overshoot.correctedPosition : newPosition
+
+      const validation = validateMove(gameState.ballPosition, targetPosition, course.tiles, actualDistance)
 
       if (validation.isValid && validation.finalPosition) {
-        const newBallPosition = validation.finalPosition
+        let finalPosition = validation.finalPosition
+
+        // Handle slopes - ball continues rolling
+        finalPosition = handleSlopeMovement(finalPosition, course.tiles)
+
+        // Check if hole is completed
+        const holeCompleted = checkHoleCompletion(finalPosition, course.holePosition)
+
+        const newBallPosition = finalPosition
         setGameState(prev => ({
           ...prev,
           ballPosition: newBallPosition,
@@ -70,12 +92,19 @@ export function useGameState() {
           lastRoll: null,
           canReroll: false,
           isTeingOff: false,
-          gamePhase: 'rolling',
+          gamePhase: holeCompleted ? 'completed' : 'rolling',
           availableDirections: [],
         }))
+
+        // Show completion message if hole reached
+        if (holeCompleted) {
+          setTimeout(() => {
+            alert(`🎉 Hole completed in ${(gameState.currentScore + 1).toString()} strokes! Par was 6.`)
+          }, 100)
+        }
       }
     },
-    [gameState.ballPosition, gameState.lastRoll, course.tiles]
+    [gameState.ballPosition, gameState.lastRoll, gameState.currentScore, course.tiles, course.holePosition]
   )
 
   const getMovementRange = useCallback(() => {

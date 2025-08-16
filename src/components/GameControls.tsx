@@ -55,6 +55,23 @@ export function GameControls({
         </div>
       </div>
 
+      {/* Game Complete */}
+      {gameState.gamePhase === 'completed' && (
+        <div className="text-center space-y-2 bg-green-100 border border-green-400 rounded p-4">
+          <div className="text-2xl">🎉 Hole Complete!</div>
+          <div className="text-lg font-bold">Final Score: {gameState.currentScore} (Par: 6)</div>
+          <div className="text-sm">{gameState.currentScore <= 6 ? 'Excellent play!' : 'Good effort!'}</div>
+          <button
+            onClick={() => {
+              window.location.reload()
+            }}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-bold"
+          >
+            Play Again
+          </button>
+        </div>
+      )}
+
       {/* Dice Controls */}
       {gameState.gamePhase === 'rolling' && (
         <div className="text-center space-y-2">

@@ -64,7 +64,12 @@ export function Tile({ tile, hasBall, isHighlighted, onHover, onLeave }: TilePro
     >
       {symbol && <span className="select-none text-white text-shadow">{symbol}</span>}
       {hasBall && (
-        <div className="absolute w-2 h-2 bg-white border border-black rounded-full z-10" data-testid="ball-marker" />
+        <div
+          className={`absolute w-2 h-2 border border-black rounded-full z-10 ${
+            tile.terrain === 'hole' ? 'bg-yellow-400' : 'bg-white'
+          }`}
+          data-testid="ball-marker"
+        />
       )}
     </div>
   )
