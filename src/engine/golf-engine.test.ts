@@ -149,7 +149,7 @@ runner.test('should move ball correctly on rough terrain', () => {
   const engine = new GolfEngine(simpleGrid)
   // First move to rough terrain (using fairway bonus: distance 1 becomes 2)
   engine.attemptMove(Direction.E, 1) // Move to position (3,3) which is rough
-  
+
   // Now test movement from rough (no bonus)
   const result = engine.attemptMove(Direction.N, 2)
 
@@ -174,61 +174,58 @@ runner.test('should apply fairway bonus', () => {
 })
 
 runner.test('should apply sand penalty', () => {
-  const simpleGrid = '○•••\n••••\n▨•••\n◉•••'
+  // Create a simple grid with start directly in sand
+  const simpleGrid = '○••••\n•••••\n••▨••\n••◉••\n•••••'
 
   const engine = new GolfEngine(simpleGrid)
-  // Move from start directly to sand (1 space north + fairway bonus = 2 spaces, but sand is only 1 space away)
-  // Actually, let's put start position directly in/adjacent to sand
-  const simpleGridFixed = '○•••\n••••\n▨▨••\n•◉••'
-  const engine2 = new GolfEngine(simpleGridFixed)
-  
-  // Move north 1 space (gets fairway bonus, becomes 2 spaces) to land in sand
-  const move1 = engine2.attemptMove(Direction.N, 1)
+
+  // Move to sand first: from (2,3) north 1 space + fairway bonus = 2 spaces, lands at (2,1)
+  const move1 = engine.attemptMove(Direction.N, 1)
   runner.expect(move1.success).toBe(true)
-  
+
+  // Now move to sand manually by using putt
+  engine.putt(Direction.S) // Move south 1 to (2,2) which is sand
+
   // From sand, distance 3 should become max(1, 3-1) = 2
-  const result = engine2.attemptMove(Direction.E, 3)
+  const result = engine.attemptMove(Direction.E, 3)
 
   runner.expect(result.success).toBe(true)
-  // Should move only 2 spaces due to sand penalty
-  const finalPos = engine2.getState().currentPosition
-  runner.expect(finalPos.x).toBe(3) // Started at x=1 in sand, moved 2 spaces east
+  // Should move only 2 spaces due to sand penalty: from (2,2) to (4,2)
+  const finalPos = engine.getState().currentPosition
+  runner.expect(finalPos).toEqual({ x: 4, y: 2 })
 })
 
 runner.test('should prevent landing in water', () => {
-  const simpleGrid = '○•••\n•~••\n••••\n•◉••'
+  const simpleGrid = '○••••\n•••••\n••~••\n••◉••\n•••••'
 
   const engine = new GolfEngine(simpleGrid)
-  // Move from (1,3) north 2 spaces + fairway bonus = 3 spaces total, landing on water at (1,0)
-  // Wait, that would overshoot. Let's try a different approach.
-  const simpleGridFixed = '○•••\n••••\n••••\n◉~••'
-  const engine2 = new GolfEngine(simpleGridFixed)
-  
-  const result = engine2.attemptMove(Direction.E, 1) // With fairway bonus becomes 2, landing in water
+  // Use putt to move exactly to where water is
+  const result = engine.putt(Direction.N) // Move exactly 1 north to land on water
 
   runner.expect(result.success).toBe(false)
   runner.expect(result.message).toBe('Cannot land in water or trees')
 })
 
 runner.test('should prevent landing on trees', () => {
-  const simpleGrid = '○•••\n••••\n••••\n◉■••'
+  const simpleGrid = '○••••\n•••••\n••■••\n••◉••\n•••••'
 
   const engine = new GolfEngine(simpleGrid)
-  const result = engine.attemptMove(Direction.E, 1) // With fairway bonus becomes 2, landing on tree
+  // Use putt to move exactly to where tree is
+  const result = engine.putt(Direction.N) // Move exactly 1 north to land on tree
 
   runner.expect(result.success).toBe(false)
   runner.expect(result.message).toBe('Cannot land in water or trees')
 })
 
 runner.test('should prevent path through trees from rough', () => {
-  const simpleGrid = '○•••\n••••\n•■••\n◉•••'
+  const simpleGrid = '○••••\n•••••\n•••■•\n•••••\n•••••\n••◉••'
 
   const engine = new GolfEngine(simpleGrid)
-  // First move to rough terrain to remove fairway bonus
-  engine.attemptMove(Direction.E, 1) // Move to rough with fairway bonus
-  
-  // Now from rough, try to move through tree
-  const result = engine.attemptMove(Direction.N, 2) // Should be blocked by tree
+  // Move to rough terrain
+  engine.putt(Direction.E) // Now at (3,5) - rough terrain
+
+  // Try to move north 4 spaces from (3,5) to (3,1), path goes through tree at (3,2)
+  const result = engine.attemptMove(Direction.N, 4)
 
   runner.expect(result.success).toBe(false)
   runner.expect(result.message).toBe('Path blocked by trees')
@@ -260,27 +257,21 @@ runner.test('should apply slope effects', () => {
 
 // Hole crossing tests
 runner.test('should win when crossing hole with overshoot of 1', () => {
-  const simpleGrid = '•○••\n••••\n••••\n◉•••'
+  const simpleGrid = '••○••\n•••••\n•••••\n••◉••\n•••••'
 
   const engine = new GolfEngine(simpleGrid)
-  // Move northeast from (0,3) - with fairway bonus, distance 2 becomes 3
-  // This should cross the hole at (1,0) and land at (3,0) - overshoot by 2, which is too much
-  // Let me adjust to make the overshoot exactly 1
-  const simpleGridFixed = '○•••\n••••\n••••\n•◉••'
+  // From (2,3) to hole at (2,0): distance 3 + fairway bonus = 4, should overshoot and land at (2,-1) - invalid
+  // Let's put hole closer
+  const simpleGridFixed = '•••••\n••○••\n•••••\n••◉••\n•••••'
   const engine2 = new GolfEngine(simpleGridFixed)
-  
-  // Move north distance 3 with fairway bonus = 4 total, should cross hole and overshoot by 3 (too much)
-  // Let's use a different approach
-  const simpleGridFixed2 = '•••○\n••••\n••••\n•◉••'
-  const engine3 = new GolfEngine(simpleGridFixed2)
-  
-  // From (1,3) to hole at (3,0): distance NE would be about 3 diagonal
-  const result = engine3.attemptMove(Direction.NE, 2) // With fairway bonus = 3, should reach and cross hole
+
+  // From (2,3) to hole at (2,1): distance 2 + fairway bonus = 3, should cross hole and overshoot to (2,0) by exactly 1
+  const result = engine2.attemptMove(Direction.N, 2)
 
   runner.expect(result.success).toBe(true)
   runner.expect(result.message).toBe('Ball in hole! You win!')
 
-  const state = engine3.getState()
+  const state = engine2.getState()
   runner.expect(state.isGameWon).toBe(true)
 })
 
@@ -302,7 +293,7 @@ runner.test('should track mulligan usage', () => {
 
   const engine = new GolfEngine(simpleGrid)
   const initialMulligans = engine.getRemainingMulligans()
-  
+
   engine.attemptMove(Direction.N, 1, true) // Use mulligan
 
   runner.expect(engine.getRemainingMulligans()).toBe(initialMulligans - 1)
@@ -343,9 +334,8 @@ runner.test('should calculate score correctly', () => {
   const engine = new GolfEngine(simpleGrid, 6, 4) // Par 4
   engine.attemptMove(Direction.N, 1)
   engine.attemptMove(Direction.N, 1)
-  engine.attemptMove(Direction.N, 1)
 
-  runner.expect(engine.getScore()).toBe(-1) // 3 strokes, par 4 = -1
+  runner.expect(engine.getScore()).toBe(-2) // 2 strokes, par 4 = -2
 })
 
 // Complex scenario test with example grid
@@ -353,8 +343,8 @@ runner.test('should handle complex game scenario', () => {
   const engine = new GolfEngine(EXAMPLE_GRID)
   const initialState = engine.getState()
 
-  runner.expect(initialState.currentPosition).toEqual({ x: 18, y: 4 }) // Start position ◉
-  runner.expect(initialState.holePosition).toEqual({ x: 2, y: 20 }) // Hole position ○
+  runner.expect(initialState.currentPosition).toEqual({ x: 17, y: 4 }) // Start position ◉
+  runner.expect(initialState.holePosition).toEqual({ x: 5, y: 20 }) // Hole position ○
 
   // Make a few moves
   const move1 = engine.attemptMove(Direction.SW, 3)

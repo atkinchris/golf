@@ -354,8 +354,7 @@ export class GolfEngine {
     // Check for hole crossing (can overshoot by 1)
     const crossesHole = this.checkHoleCrossing(this.state.currentPosition, targetPosition)
     const distanceToHole =
-      Math.abs(targetPosition.x - this.state.holePosition.x) +
-      Math.abs(targetPosition.y - this.state.holePosition.y)
+      Math.abs(targetPosition.x - this.state.holePosition.x) + Math.abs(targetPosition.y - this.state.holePosition.y)
 
     if (crossesHole && distanceToHole <= 1) {
       // Ball goes in the hole!
