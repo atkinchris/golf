@@ -117,7 +117,7 @@ Provide complete TypeScript implementation including:
 - Type definitions and interfaces
 - Main game state machine class
 - Helper functions for movement validation and terrain effects
-- Comprehensive unit test suite using a testing framework (Jest recommended)
+- Comprehensive unit test suite using Vitest
 - Documentation comments explaining complex game logic
 
 Structure the code in multiple files as appropriate for maintainability.
