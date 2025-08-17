@@ -1,186 +1,185 @@
-# Golf Game State Machine Development Prompt
+<reasoning>
 
-You are tasked with creating a TypeScript state machine for a dice-based golf game. This game is played on a grid and involves strategic movement through different terrain types to reach the hole with the lowest score possible.
+- Simple Change: no - This is a complex request to create a comprehensive system prompt for game development
+- Reasoning: yes - The current prompt does use some analysis and reasoning
+  - Identify: task breakdown, requirements analysis
+  - Conclusion: yes - the chain of thought leads to creating the state machine
+  - Ordering: before - reasoning about requirements comes before implementation
+- Structure: partial - has some structure but could be better organized
+- Examples: yes - includes a grid example
+  - Representative: 3 - the grid example is helpful but could be more comprehensive
+- Complexity: 4 - this is a complex prompt involving game logic, state machines, and TypeScript
+  - Task: 4 - creating a complete game engine with rules and tests is complex
+  - Necessity: high
+- Specificity: 3 - has good details but could be more specific about implementation requirements
+- Prioritization: Structure, Specificity, Examples - need better organization, more detailed requirements, and clearer examples
+- Conclusion: Restructure with clear sections, add detailed specifications for state machine implementation, include comprehensive examples with terrain symbols
+
+</reasoning>
+
+You are a TypeScript game engine developer tasked with creating a deterministic state machine for a grid-based dice golf game. You will implement the complete game logic, rules, and state management without any UI components.
+
+## Game Overview
+
+Create a state machine that manages a paper-based golf game played on a 16x26 grid. The game involves moving a ball from a starting position to a hole using dice rolls and various terrain rules. The system must be completely deterministic - identical inputs always produce identical outputs.
 
 ## Core Requirements
 
-Create a **deterministic state machine** in TypeScript that manages all game logic. The same sequence of inputs must always produce identical outputs. Do not implement any UI or graphics - focus solely on the game engine and logic.
+### State Machine Implementation
 
-## Game Grid Specifications
+- Track current ball position (x, y coordinates)
+- Maintain complete move history for replay/undo functionality
+- Calculate current score (number of strokes taken)
+- Determine win condition (ball reaches hole)
+- Validate all moves according to terrain and game rules
+- Handle special terrain effects (slopes, hazards, bonuses)
 
-- Grid size: 16 columns (horizontal) × 26 rows (vertical)
-- Grid uses 1-based indexing (columns 1-16, rows 1-26)
-- Each cell contains one terrain type
-- Player starts at a designated tee position
-- Goal is to reach the hole position
+### Grid System
 
-## Terrain Types and Effects
-
-### Rough (•)
-
-- Default terrain covering majority of the grid
-- Move exactly the rolled distance
-- No movement modifiers
-
-### Fairway (○)
-
-- Preferred terrain for strategic play
-- **+1 bonus** to dice roll distance
-- Only terrain that allows hitting **over trees**
-- Enables use of Driver (6-space move)
-
-### Sand Trap (▨)
-
-- Penalizes movement capability
-- **-1 penalty** to dice roll distance
-- Iron moves reduced from 3 to 2 spaces
-
-### Water Hazard (~)
-
-- **Cannot land on water** (invalid move)
-- **Can fly over water** during movement path
-
-### Trees (■)
-
-- **Cannot land on trees** (invalid move)
-- **Cannot fly over trees** except when hitting from fairway
-
-### Slopes (▲▼◄►)
-
-- Arrow indicates roll direction after landing
-- Ball automatically rolls 1 space in arrow direction
-- **Chain rolling**: Continue rolling if new space also has slope
-- **Safety rules**:
-  - Ignore slope if it points toward water
-  - Stop after first movement if two slopes point at each other
-
-## Movement Rules and Club Types
-
-### Dice Rolling (1-6)
-
-- Roll d6 to determine base movement distance
-- Apply terrain modifiers (fairway +1, sand -1)
-- **Tee-off re-roll**: One free re-roll when starting, must use second result
-- **Mulligans**: 6 per game, can re-roll any shot, must use second result
-
-### Club Selection
-
-- **Driver**: 6 spaces, only from fairway, can go over trees
-- **Iron**: 3 spaces (2 from sand), cannot go over trees, usable anywhere
-- **Putter**: Always 1 space, usable from any terrain, always available
+- 16 columns (horizontal) × 26 rows (vertical) coordinate system
+- Each cell contains terrain type affecting movement
+- Pre-defined static grid layout (no procedural generation)
+- Support for multiple terrain types with specific movement rules
 
 ### Movement Mechanics
 
-- **8-directional movement**: orthogonal and diagonal
-- **Straight-line paths**: All movement follows direct lines
-- **Path validation**: Entire path must be clear of obstacles
-- **Reverse direction**: Can move opposite to previous shot if needed
+- Dice roll determines base movement distance (1-6 spaces)
+- Movement in 8 directions (orthogonal and diagonal)
+- Terrain modifiers affect final movement distance
+- Path validation ensures legal moves through terrain
+- Ball position updates only after successful move validation
 
-### Hole Scoring
+### Terrain Types and Rules
 
-- **Overshoot rule**: Can overshoot hole by exactly 1 space and still score
-- **Path crossing**: If movement path crosses hole, can choose to score or continue
-- **Par system**: Each hole has par of 6 strokes
+Implement the following terrain effects based on the provided rules:
 
-## State Machine Requirements
+- **Rough (•)**: Standard terrain, move exact dice roll
+- **Fairway (open spaces)**: Add +1 to dice roll, allows driving over trees
+- **Sand Trap (▨)**: Subtract -1 from dice roll, minimum 1 space
+- **Water Hazard (◉)**: Cannot land in water, can travel over
+- **Trees (■)**: Cannot land on or travel through (exception: from fairway)
+- **Slopes (▲▼◄►)**: Ball rolls 1 additional space in arrow direction
+- **Hole (○)**: Target destination, game ends when reached
 
-### Core State Tracking
+### Special Rules Implementation
+
+- **Teeing off**: One re-roll allowed on first stroke
+- **Mulligans**: 6 re-rolls available per game, track usage
+- **Putting**: Always option to move exactly 1 space
+- **Overshoot**: Ball can overshoot hole by 1 space and still count as "in"
+- **Slope chaining**: Ball continues rolling if landing on consecutive slopes
+
+## Technical Specifications
+
+### State Management
 
 ```typescript
 interface GameState {
-  // Grid and positions
-  grid: TerrainType[][]
-  playerPosition: Position
-  holePosition: Position
-  teePosition: Position
-
-  // Game progress
-  currentStroke: number
-  totalScore: number
-  isGameComplete: boolean
-  isGameWon: boolean
-
-  // Move history for determinism
+  ballPosition: { x: number; y: number }
   moveHistory: Move[]
-
-  // Resources
-  mulligansRemaining: number
-  canRerollTeeShot: boolean
+  score: number
+  mulligansUsed: number
+  gameStatus: 'playing' | 'won' | 'invalid'
+  currentTerrain: TerrainType
 }
 ```
 
-### Required Methods
+### Move Validation
 
-- `rollDice(): number` - Generate dice roll (1-6)
-- `calculateMoveDistance(roll: number, terrain: TerrainType): number` - Apply terrain modifiers
-- `validateMovePath(from: Position, to: Position, fromTerrain: TerrainType): boolean` - Check path legality
-- `executeMove(direction: Direction, distance: number): GameState` - Perform movement
-- `handleSlope(position: Position): Position` - Process slope effects
-- `checkHoleScored(path: Position[]): boolean` - Determine if hole was reached
-- `useMulligan(newRoll: number): GameState` - Apply mulligan re-roll
-- `resetGame(): GameState` - Initialize new game state
+- Validate target position is within grid boundaries
+- Check terrain movement restrictions
+- Verify path clearance for movement
+- Apply terrain modifiers to movement distance
+- Handle special cases (slopes, water, trees)
 
-### Movement Validation Logic
+### Deterministic Behavior
 
-- Verify destination is within grid bounds
-- Ensure no landing on water or trees
-- Check path clearance (trees blocking unless from fairway)
-- Validate club selection matches current terrain restrictions
+- No random number generation within state machine
+- Dice rolls provided as input parameters
+- Same input sequence always produces same game state
+- All game logic must be pure functions where possible
 
-## Example Grid Layout
+# Steps
 
+1. **Define Core Types**: Create interfaces for GameState, Move, TerrainType, and Position
+2. **Implement Grid System**: Create static grid layout with terrain definitions
+3. **Build Movement Engine**: Implement movement validation and execution logic
+4. **Add Terrain Effects**: Implement specific rules for each terrain type
+5. **Create State Machine**: Build main game state management system
+6. **Implement Special Rules**: Add mulligan, putting, and overshoot logic
+7. **Add Game Status Logic**: Implement win condition and score calculation
+8. **Write Comprehensive Tests**: Unit tests covering all game mechanics and edge cases
+
+# Output Format
+
+Provide complete TypeScript implementation including:
+
+- Type definitions and interfaces
+- Main game state machine class
+- Helper functions for movement validation and terrain effects
+- Comprehensive unit test suite using a testing framework (Jest recommended)
+- Documentation comments explaining complex game logic
+
+Structure the code in multiple files as appropriate for maintainability.
+
+# Examples
+
+## Terrain Symbol Mapping
+
+```typescript
+const TERRAIN_SYMBOLS = {
+  '•': TerrainType.ROUGH,
+  ' ': TerrainType.FAIRWAY,
+  '▨': TerrainType.SAND,
+  '◉': TerrainType.WATER,
+  '■': TerrainType.TREES,
+  '▲': TerrainType.SLOPE_UP,
+  '○': TerrainType.HOLE,
+} as const
 ```
-// Use this as reference for terrain symbol meanings:
-// • = Rough, ○ = Fairway, ▨ = Sand, ~ = Water, ■ = Trees
-// ▲▼◄► = Slopes, ◉ = Hole position
 
-01 •••• •••• •••• ••••
-02 •••• •••• •••• ■•••
-03 •••• •••• •••■ ■■■•
-04 •••• •••• •••■ ■■■■
-05 •••• •••• •▨▨■ ■■◉■
-06 •••• •••• ▨▨▨▨ ■■■■
-07 •••• •••▲ ▲▨▨▨ ■■■•
-08 •••• •••• ▨▨▨▨ ■■■•
-09 •••• •••• ▨▨▨▨ •■••
-10 •••• •••■ ■▲▲• ••••
-11 •••• ••■■ ■■•• ••••
-12 •••• •••■ ■••▤ ▤▤▤•
-13 •••• •••• ••▤▤ ▤▤▤•
-14 •••• •••• •▤▤▤ ▤▤▤▤
-15 •••• •••• ▤▤▤▤ ▤▤▤•
-16 •••• •••▤ ▤▤▤▤ ▤■■•
-17 •••• •••▤ ▤▤▤▤ ▤■■■
-18 ••■■ ■■■■ ▤▤▤▤ ■■■•
-19 •■■■ ■■■■ ■••■ ■■■■
-20 •■■■ ■■■■ ■••■ ■■■•
-21 ••■■ ○■■■ •••• •■••
-22 ••■■ ■■■■ •••• ••••
-23 ••■■ ■■■• •••• ••••
-24 •••■ ■••• •••• ••••
-25 •••• •••• •••• ••••
-26 •••• •••• •••• ••••
+## Movement Example
+
+```typescript
+// Player at position (5, 10) on fairway, rolls 4
+// Fairway adds +1, so effective movement is 5 spaces
+// Player chooses direction northeast (1, -1)
+// Final position: (10, 5) assuming path is clear
+const move: Move = {
+  fromPosition: { x: 5, y: 10 },
+  toPosition: { x: 10, y: 5 },
+  diceRoll: 4,
+  effectiveDistance: 5,
+  direction: { x: 1, y: -1 },
+  terrainModifier: 1,
+}
 ```
 
-## Testing Requirements
+## Test Case Structure
 
-Create comprehensive unit tests covering:
+```typescript
+describe('Golf Game Engine', () => {
+  it('should apply fairway bonus to dice roll', () => {
+    // Test setup with ball on fairway
+    // Roll dice and verify +1 bonus applied
+    // Verify movement distance calculation
+  })
 
-- **Terrain effects**: Verify all movement modifiers apply correctly
-- **Movement validation**: Test path blocking and clearance rules
-- **Slope mechanics**: Ensure proper chaining and safety rules
-- **Hole scoring**: Validate overshoot and path-crossing logic
-- **Determinism**: Same input sequences produce identical results
-- **Edge cases**: Grid boundaries, invalid moves, resource depletion
-- **Club restrictions**: Driver from fairway only, iron limitations
-- **Mulligan usage**: Proper tracking and application
+  it('should prevent movement through trees from rough', () => {
+    // Test setup with trees blocking path
+    // Attempt invalid move
+    // Verify move is rejected and state unchanged
+  })
+})
+```
 
-## Deliverables
+# Notes
 
-1. Complete TypeScript state machine with all game logic
-2. Comprehensive type definitions for all game entities
-3. Full test suite with >90% coverage
-4. Example usage demonstrating a complete game playthrough
-5. Documentation explaining the API and game flow
-
-Focus on clean, maintainable code with clear separation of concerns. The state machine should be easily extensible for future features while maintaining the core deterministic behavior.
+- The game must be completely deterministic - no internal randomness
+- All dice rolls and player choices should be provided as method parameters
+- Implement comprehensive error handling for invalid moves
+- Consider edge cases like slope chains leading to water or boundaries
+- The grid coordinate system should use (0,0) as top-left corner
+- Maintain backward compatibility for replaying historical games
+- Score calculation should match traditional golf scoring (lower is better)
+- Consider implementing optional difficulty modes or rule variations for future extensibility
