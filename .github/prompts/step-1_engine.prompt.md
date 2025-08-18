@@ -1,185 +1,153 @@
 <reasoning>
-
-- Simple Change: no - This is a complex request to create a comprehensive system prompt for game development
-- Reasoning: yes - The current prompt does use some analysis and reasoning
-  - Identify: task breakdown, requirements analysis
-  - Conclusion: yes - the chain of thought leads to creating the state machine
-  - Ordering: before - reasoning about requirements comes before implementation
-- Structure: partial - has some structure but could be better organized
-- Examples: yes - includes a grid example
-  - Representative: 3 - the grid example is helpful but could be more comprehensive
-- Complexity: 4 - this is a complex prompt involving game logic, state machines, and TypeScript
-  - Task: 4 - creating a complete game engine with rules and tests is complex
-  - Necessity: high
-- Specificity: 3 - has good details but could be more specific about implementation requirements
-- Prioritization: Structure, Specificity, Examples - need better organization, more detailed requirements, and clearer examples
-- Conclusion: Restructure with clear sections, add detailed specifications for state machine implementation, include comprehensive examples with terrain symbols
-
+- Simple Change: no - This is a complex prompt engineering task requiring creation of a detailed system prompt for a golf game engine.
+- Reasoning: yes - The current prompt uses reasoning and analysis throughout
+  - Identify: game mechanics analysis, technology decisions
+  - Conclusion: yes - the reasoning leads to specific implementation requirements
+  - Ordering: before - reasoning appears before conclusions/specifications
+- Structure: yes - the prompt has clear sections with headings and organized content
+- Examples: yes - includes a detailed grid example
+  - Representative: 4 - the grid example is quite representative of the expected game layout
+- Complexity: 4 - this is a highly complex prompt with multiple technical requirements
+  - Task: 5 - implementing a complete game engine with state machine, events, and testing
+  - Necessity: high complexity is necessary for this comprehensive task
+- Specificity: 4 - very detailed with specific technology stack, API design, and grid layout
+- Prioritization: 1) Clarity of game mechanics and rules, 2) API structure for commands/events, 3) Technical implementation details
+- Conclusion: restructure to lead with clear task definition, ensure reasoning precedes conclusions, add more structured examples for API design
 </reasoning>
 
-You are a TypeScript game engine developer tasked with creating a deterministic state machine for a grid-based dice golf game. You will implement the complete game logic, rules, and state management without any UI components.
+Create a TypeScript-based game engine for a deterministic paper golf game using a grid-based state machine architecture. The engine should manage game logic, player movement, terrain interactions, and scoring without any UI components.
 
 ## Game Overview
 
-Create a state machine that manages a paper-based golf game played on a 16x26 grid. The game involves moving a ball from a starting position to a hole using dice rolls and various terrain rules. The system must be completely deterministic - identical inputs always produce identical outputs.
+Develop a state machine that handles a golf game played on a 16x26 grid where players navigate through different terrain types to reach the hole. The game must be entirely deterministic - identical inputs always produce identical outputs.
 
-## Core Requirements
+## Technical Requirements
 
-### State Machine Implementation
+**Primary Technology Stack:**
 
-- Track current ball position (x, y coordinates)
-- Maintain complete move history for replay/undo functionality
-- Calculate current score (number of strokes taken)
-- Determine win condition (ball reaches hole)
-- Validate all moves according to terrain and game rules
-- Handle special terrain effects (slopes, hazards, bonuses)
+- TypeScript with modern features and best practices
+- Vitest for unit testing (no other testing frameworks)
+- Modular, maintainable code structure
 
-### Grid System
+**Architecture Pattern:**
 
-- 16 columns (horizontal) × 26 rows (vertical) coordinate system
-- Each cell contains terrain type affecting movement
-- Pre-defined static grid layout (no procedural generation)
-- Support for multiple terrain types with specific movement rules
+- Command-input, event-output design
+- State machine for game logic management
+- Immutable game state tracking
 
-### Movement Mechanics
+## Core Engine Design
 
-- Dice roll determines base movement distance (1-6 spaces)
-- Movement in 8 directions (orthogonal and diagonal)
-- Terrain modifiers affect final movement distance
-- Path validation ensures legal moves through terrain
-- Ball position updates only after successful move validation
+### Input Commands Structure
 
-### Terrain Types and Rules
+Design commands that trigger game actions:
 
-Implement the following terrain effects based on the provided rules:
+- `startTurn`: Initialize turn and perform dice rolling mechanics
+- `move`: Execute player movement in specified direction
+- `putt`: Execute putting action with different movement rules
+- `mulligan`: Allow player to retake previous action
+- `reset`: Return game to initial state
 
-- **Rough (•)**: Standard terrain, move exact dice roll
-- **Fairway (open spaces)**: Add +1 to dice roll, allows driving over trees
-- **Sand Trap (▨)**: Subtract -1 from dice roll, minimum 1 space
-- **Water Hazard (◉)**: Cannot land in water, can travel over
-- **Trees (■)**: Cannot land on or travel through (exception: from fairway)
-- **Slopes (▲▼◄►)**: Ball rolls 1 additional space in arrow direction
-- **Hole (○)**: Target destination, game ends when reached
+### Output Events Structure
 
-### Special Rules Implementation
+Emit events for state changes:
 
-- **Teeing off**: One re-roll allowed on first stroke
-- **Mulligans**: 6 re-rolls available per game, track usage
-- **Putting**: Always option to move exactly 1 space
-- **Overshoot**: Ball can overshoot hole by 1 space and still count as "in"
-- **Slope chaining**: Ball continues rolling if landing on consecutive slopes
+- `gameStarted`: Game initialization complete
+- `gameEnded`: Player reached hole successfully
+- `playerMoved`: Position change completed
+- `turnStarted`: New turn initiated with dice results
+- `moveAvailable`: Valid movement options determined
 
-## Technical Specifications
+### Read-Only State Properties
 
-### State Management
+Expose current game information:
 
-```typescript
-interface GameState {
-  ballPosition: { x: number; y: number }
-  moveHistory: Move[]
-  score: number
-  mulligansUsed: number
-  gameStatus: 'playing' | 'won' | 'invalid'
-  currentTerrain: TerrainType
-}
-```
+- `currentPosition`: Player coordinates on grid
+- `currentTerrain`: Current terrain type and properties
+- `score`: Current stroke count
+- `mulligansLeft`: Remaining mulligan count
+- `isGameOver`: Game completion status
+- `currentDiceRoll`: Latest dice result
+- `availableDirections`: Valid movement directions from current position
 
-### Move Validation
+## Game Implementation Requirements
 
-- Validate target position is within grid boundaries
-- Check terrain movement restrictions
-- Verify path clearance for movement
-- Apply terrain modifiers to movement distance
-- Handle special cases (slopes, water, trees)
+**Grid System:**
 
-### Deterministic Behavior
+- Implement 16 rows × 26 columns coordinate system
+- Track terrain types and movement modifiers
+- Handle boundary conditions and invalid moves
 
-- No random number generation within state machine
-- Dice rolls provided as input parameters
-- Same input sequence always produces same game state
-- All game logic must be pure functions where possible
+**Game Rules Integration:**
+
+- Reference and implement all rules from the provided RULES.md file
+- Ensure deterministic dice rolling with reproducible seeds
+- Track complete move history for game replay capability
+
+**State Management:**
+
+- Maintain original grid state immutably
+- Track all player moves chronologically
+- Calculate scores and game completion accurately
+- Handle edge cases and invalid states gracefully
 
 # Steps
 
-1. **Define Core Types**: Create interfaces for GameState, Move, TerrainType, and Position
-2. **Implement Grid System**: Create static grid layout with terrain definitions
-3. **Build Movement Engine**: Implement movement validation and execution logic
-4. **Add Terrain Effects**: Implement specific rules for each terrain type
-5. **Create State Machine**: Build main game state management system
-6. **Implement Special Rules**: Add mulligan, putting, and overshoot logic
-7. **Add Game Status Logic**: Implement win condition and score calculation
-8. **Write Comprehensive Tests**: Unit tests covering all game mechanics and edge cases
+1. **Design Core Interfaces**: Define TypeScript interfaces for commands, events, and game state
+2. **Implement Grid System**: Create grid representation with terrain type mappings
+3. **Build State Machine**: Develop the core state management logic with transitions
+4. **Add Command Processing**: Implement command handlers for each input type
+5. **Create Event System**: Build event emission for state changes
+6. **Integrate Game Rules**: Apply rules from RULES.md to movement and scoring
+7. **Write Comprehensive Tests**: Use Vitest to test all game scenarios and edge cases
 
 # Output Format
 
-Provide complete TypeScript implementation including:
+Provide complete TypeScript implementation files organized as:
 
-- Type definitions and interfaces
-- Main game state machine class
-- Helper functions for movement validation and terrain effects
-- Comprehensive unit test suite using Vitest
-- Documentation comments explaining complex game logic
-
-Structure the code in multiple files as appropriate for maintainability.
+- Main engine class with state machine
+- Interface definitions for commands, events, and state
+- Terrain and grid type definitions
+- Comprehensive Vitest test suites covering all functionality
+- Brief documentation explaining the API usage
 
 # Examples
 
-## Terrain Symbol Mapping
+**Command Structure:**
 
 ```typescript
-const TERRAIN_SYMBOLS = {
-  '•': TerrainType.ROUGH,
-  ' ': TerrainType.FAIRWAY,
-  '▨': TerrainType.SAND,
-  '◉': TerrainType.WATER,
-  '■': TerrainType.TREES,
-  '▲': TerrainType.SLOPE_UP,
-  '○': TerrainType.HOLE,
-} as const
-```
+interface MoveCommand {
+  type: 'move'
+  direction: 'north' | 'south' | 'east' | 'west'
+  // [additional properties as needed for your design]
+}
 
-## Movement Example
-
-```typescript
-// Player at position (5, 10) on fairway, rolls 4
-// Fairway adds +1, so effective movement is 5 spaces
-// Player chooses direction northeast (1, -1)
-// Final position: (10, 5) assuming path is clear
-const move: Move = {
-  fromPosition: { x: 5, y: 10 },
-  toPosition: { x: 10, y: 5 },
-  diceRoll: 4,
-  effectiveDistance: 5,
-  direction: { x: 1, y: -1 },
-  terrainModifier: 1,
+interface StartTurnCommand {
+  type: 'startTurn'
+  // [seed for deterministic dice rolling]
 }
 ```
 
-## Test Case Structure
+**Event Structure:**
 
 ```typescript
-describe('Golf Game Engine', () => {
-  it('should apply fairway bonus to dice roll', () => {
-    // Test setup with ball on fairway
-    // Roll dice and verify +1 bonus applied
-    // Verify movement distance calculation
-  })
-
-  it('should prevent movement through trees from rough', () => {
-    // Test setup with trees blocking path
-    // Attempt invalid move
-    // Verify move is rejected and state unchanged
-  })
-})
+interface PlayerMovedEvent {
+  type: 'playerMoved'
+  fromPosition: [number, number]
+  toPosition: [number, number]
+  terrainType: string
+  // [additional relevant state information]
+}
 ```
+
+**Grid Representation:**
+The provided grid uses symbols (•, ■, ▨, ▲, ◉, ▤, ○) representing different terrain types. Design an efficient internal representation - this could be enums, constants, or objects with properties affecting movement rules.
 
 # Notes
 
-- The game must be completely deterministic - no internal randomness
-- All dice rolls and player choices should be provided as method parameters
-- Implement comprehensive error handling for invalid moves
-- Consider edge cases like slope chains leading to water or boundaries
-- The grid coordinate system should use (0,0) as top-left corner
-- Maintain backward compatibility for replaying historical games
-- Score calculation should match traditional golf scoring (lower is better)
-- Consider implementing optional difficulty modes or rule variations for future extensibility
+- The engine must be completely deterministic for replay functionality
+- Focus solely on game logic - no rendering or UI components
+- Use the exact grid layout provided as your test case
+- Ensure all game rules from RULES.md are properly implemented
+- Write tests that verify deterministic behavior across multiple runs
+- Consider performance for grid operations and state management
+- Handle invalid moves and edge cases gracefully with appropriate events
