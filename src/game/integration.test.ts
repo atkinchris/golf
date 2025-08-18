@@ -64,11 +64,12 @@ describe('Complete Golf Game Engine Integration', () => {
     expect(eventTypes).toContain('gameStarted')
     expect(eventTypes).toContain('turnStarted')
 
-    console.log('✅ Complete engine integration test passed')
-    console.log(`📊 Events generated: ${events.length}`)
-    console.log(`🎲 Final score: ${state.score}`)
-    console.log(`⛳ Game complete: ${state.isGameOver}`)
-    console.log(`🔄 Mulligans remaining: ${state.mulligansRemaining}`)
+    // Verify comprehensive event tracking
+    expect(events.length).toBeGreaterThan(0)
+    expect(state.score).toBeGreaterThanOrEqual(0)
+    expect(typeof state.isGameOver).toBe('boolean')
+    expect(state.mulligansRemaining).toBeGreaterThanOrEqual(0)
+    expect(state.mulligansRemaining).toBeLessThanOrEqual(6)
   })
 
   it('should demonstrate all terrain effects work correctly', () => {
@@ -80,7 +81,6 @@ describe('Complete Golf Game Engine Integration', () => {
     fairwayEngine.processCommand({ type: 'startTurn', seed: 42 })
     
     const fairwayState = fairwayEngine.getState()
-    expect(fairwayState.currentTerrain).toBe('fairway')
 
     // Test sand trap penalty  
     const sandGrid = ['▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨']
@@ -90,9 +90,10 @@ describe('Complete Golf Game Engine Integration', () => {
     sandEngine.processCommand({ type: 'startTurn', seed: 42 })
     
     const sandState = sandEngine.getState()
+    
+    // Verify terrain effects work correctly
+    expect(fairwayState.currentTerrain).toBe('fairway')
     expect(sandState.currentTerrain).toBe('sandTrap')
-
-    console.log('✅ All terrain effects test passed')
   })
 
   it('should demonstrate win condition detection', () => {
@@ -117,11 +118,11 @@ describe('Complete Golf Game Engine Integration', () => {
     expect(puttError2).toBe(null)
     
     const state = engine.getState()
-    expect(state.isGameOver).toBe(true)
-    
     const completionEvent = events.find(e => e.type === 'gameCompleted')
+    
+    // Verify game completion state
+    expect(state.isGameOver).toBe(true)
     expect(completionEvent).toBeTruthy()
-
-    console.log('✅ Win condition test passed')
+    expect(completionEvent?.type).toBe('gameCompleted')
   })
 })
