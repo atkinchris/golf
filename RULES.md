@@ -11,8 +11,6 @@ Check your landing spot and make sure your path is clear. You may only go throug
 
 Once you've decided your path, draw a straight line to your new destination. Then draw a small circle to indicate the new ball position.
 
-NOTE: For an added challenge, you may pick your direction before hitting. Be "fore"-warned, this may require taking lots of Mulligans. Especially if your hit lands in the trees … or in the drink!
-
 ## Re-rolling
 
 When teeing off, if you don't like your roll, you may re-roll once. You must use the second roll amount. The same goes for Mulligans.
@@ -22,10 +20,6 @@ You have 6 "Mulligans" per course that can be used to re-roll any time. Mark off
 ## Putting
 
 You may always choose to putt [move 1 space] on your turn. You may even roll the die and instead choose to putt instead of move the indicated number of spaces.
-
-- DRIVER [Move 6 spaces]: May only be used from the fairway. Drives can go over trees.
-- IRON [Move 3 spaces]: Use anytime. Only move 2 from sand. Can't go over trees.
-- PUTTER [Move 1 space]: You may always putt.
 
 ### Overshooting the hole
 
