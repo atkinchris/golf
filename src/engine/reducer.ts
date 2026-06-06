@@ -62,6 +62,16 @@ function applyEvent(state: GameState, event: GameEvent): GameState {
     }
 
     case "MulliganUsed": {
+      // Tee-off free reroll: consume the flag, don't spend a mulligan
+      if (state.teeOffRerollAvailable) {
+        return {
+          ...state,
+          phase: Phase.AwaitingRoll,
+          teeOffRerollAvailable: false,
+          currentRoll: null,
+          rawRoll: null,
+        };
+      }
       if (state.mulligansRemaining <= 0) return state;
       return {
         ...state,
