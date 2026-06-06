@@ -3,7 +3,7 @@ import { reduce } from "../engine/reducer";
 import { type Direction, type GameEvent, GRID_HEIGHT, GRID_WIDTH, Phase } from "../engine/types";
 import { useAnimation } from "../hooks/useAnimation";
 import { useGameStorage } from "../hooks/useGameStorage";
-import { DiceButton } from "./DiceButton";
+import { ActionColumn } from "./ActionColumn";
 import { DirectionPicker } from "./DirectionPicker";
 import { GameCanvas } from "./GameCanvas";
 import { HUD } from "./HUD";
@@ -78,21 +78,12 @@ export function App() {
       if (state.phase === Phase.AwaitingDirection) {
         dispatch({ type: "DirectionChosen", direction });
       } else {
-        // Putt in the given direction (from AwaitingRoll or AwaitingDirection)
+        // Tap an arrow before rolling = putt
         dispatch({ type: "PuttChosen", direction });
       }
     },
     [dispatch, state.phase],
   );
-
-  const handlePutt = useCallback(() => {
-    // Putt mode: direction arrows now move 1 cell
-    // We don't do anything here except indicate putt mode
-    // The DirectionPicker handles the actual direction
-    // For simplicity, if we're in AwaitingDirection, show putt as moving 1
-    // Actually, we need a way for the user to pick putt direction
-    // For now, let's make it so clicking putt then clicking a direction sends PuttChosen
-  }, []);
 
   const handleNewGame = useCallback(() => {
     const newEvents: GameEvent[] = [
@@ -134,16 +125,15 @@ export function App() {
           </button>
         </div>
       ) : (
-        <>
+        <div style={styles.controlsRow}>
           <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
-          <DiceButton
+          <ActionColumn
             state={state}
             onRoll={handleRoll}
             onMulligan={handleMulligan}
-            onPutt={handlePutt}
             disabled={isAnimating}
           />
-        </>
+        </div>
       )}
     </div>
   );
@@ -165,6 +155,12 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     padding: "8px",
     overflow: "hidden",
+  },
+  controlsRow: {
+    display: "flex",
+    alignItems: "stretch",
+    gap: "8px",
+    padding: "6px 8px 12px",
   },
   gameOver: {
     padding: "24px",
