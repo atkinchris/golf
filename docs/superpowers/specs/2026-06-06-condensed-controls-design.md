@@ -46,11 +46,11 @@ Font size: 13px (unchanged). Padding reduced to a single 6px top/bottom.
 Sits to the right of the DirectionPicker, matching the grid height (138px).
 Content varies by game phase:
 
-| Phase | Right column |
-|---|---|
-| AwaitingRoll | Roll button, full height, primary blue |
-| AwaitingDirection - mulligan available | Re-roll button, full height, amber |
-| AwaitingDirection - no mulligan | Empty (column hidden) |
+| Phase                                  | Right column                           |
+| -------------------------------------- | -------------------------------------- |
+| AwaitingRoll                           | Roll button, full height, primary blue |
+| AwaitingDirection - mulligan available | Re-roll button, full height, amber     |
+| AwaitingDirection - no mulligan        | Empty (column hidden)                  |
 
 ### Putt
 
@@ -58,9 +58,10 @@ The separate Putt button is removed. Tapping a direction arrow before rolling co
 a putt. This preserves the intended parity: at the start of a move the player may either
 tap an arrow (putt) or tap Roll, with neither option visually dominant over the other.
 
-When the right column is empty (AwaitingDirection, no mulligan) the DirectionPicker row
-renders without a right sibling. The picker does not reflow or recentre - it stays
-left-aligned within the existing padding so there is no visual jump between phases.
+When the right column is empty (AwaitingDirection, no mulligan) the ActionColumn renders
+as an invisible placeholder (`opacity: 0`, `pointer-events: none`) at the same width as
+when a button is present. The picker stays in the same position across all phases with no
+visual jump.
 
 ## Component changes
 
@@ -81,23 +82,25 @@ left-aligned within the existing padding so there is no visual jump between phas
 - Change from a horizontal button row to a single tall button filling the picker height.
 - Accept `phase`, `mulligans`, `onRoll`, `onMulligan` props.
 - Remove Putt button and all Putt-related props/handlers.
-- Return null when phase is AwaitingDirection and no mulligan is available.
+- Return an invisible placeholder (`opacity: 0`, `pointer-events: none`) of the same
+  width when phase is AwaitingDirection and no mulligan is available, so the picker
+  does not reflow.
 
 ### App.tsx
 
-- Wrap DirectionPicker and ActionColumn in a `display: flex` row.
-- Remove the standalone DiceButton / ActionColumn row that previously sat below the picker.
-- Pass picker height (138px) as a prop or CSS variable so ActionColumn can match it.
+- Wrap DirectionPicker and ActionColumn in a `display: flex`, `align-items: stretch` row.
+  ActionColumn fills the full row height automatically without needing an explicit height prop.
+- Remove the standalone DiceButton row that previously sat below the picker.
 - Update import from DiceButton to ActionColumn.
 
 ## Height budget (iPhone 17)
 
-| Element | Height |
-|---|---|
-| Canvas | 570px |
-| HUD | 34px |
-| Picker + ActionColumn row | 138px |
-| Total | 742px |
+| Element                   | Height |
+| ------------------------- | ------ |
+| Canvas                    | 570px  |
+| HUD                       | 34px   |
+| Picker + ActionColumn row | 138px  |
+| Total                     | 742px  |
 
 Available viewport (dvh, Safari address bar collapsed): approximately 818px.
 Remaining space: approximately 76px. No scroll required.
