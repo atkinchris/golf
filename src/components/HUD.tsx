@@ -28,40 +28,31 @@ function scoreLabel(strokes: number, par: number): string {
 
 export function HUD({ state }: Props) {
   const terrain = getBallTerrain(state);
+  const terrainText = terrain ? terrainLabel(terrain) : null;
 
   return (
     <div style={styles.container}>
       <div style={styles.row}>
-        <span style={styles.label}>
-          Stroke <strong>{state.stroke}</strong>
+        <span style={styles.score}>
+          {state.stroke > 0 ? scoreLabel(state.stroke, state.par) : "–"}
         </span>
-        <span style={styles.label}>
-          Par <strong>{state.par}</strong>
+        <span style={styles.mid}>
+          Str {state.stroke} / Par {state.par}
         </span>
-        {state.stroke > 0 && (
-          <span style={styles.score}>{scoreLabel(state.stroke, state.par)}</span>
-        )}
-      </div>
-      <div style={styles.row}>
-        <span style={styles.label}>
-          Mulligans{" "}
-          <strong>
-            {"●".repeat(state.mulligansRemaining)}
-            {"○".repeat(6 - state.mulligansRemaining)}
-          </strong>
+        <span style={styles.right}>
+          {"●".repeat(state.mulligansRemaining)}
+          {"○".repeat(6 - state.mulligansRemaining)}
+          {terrainText && (
+            <span style={styles.terrain}> {terrainText}</span>
+          )}
+          {state.rawRoll !== null && (
+            <span style={styles.roll}>
+              {" "}
+              🎲{state.rawRoll}
+              {state.currentRoll !== state.rawRoll && `\u2192${state.currentRoll}`}
+            </span>
+          )}
         </span>
-        {terrain && <span style={styles.terrain}>{terrainLabel(terrain)}</span>}
-        {state.rawRoll !== null && (
-          <span style={styles.roll}>
-            Roll: <strong>{state.rawRoll}</strong>
-            {state.currentRoll !== state.rawRoll && (
-              <>
-                {" "}
-                → <strong>{state.currentRoll}</strong>
-              </>
-            )}
-          </span>
-        )}
       </div>
     </div>
   );
@@ -69,31 +60,36 @@ export function HUD({ state }: Props) {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    padding: "8px 12px",
+    padding: "6px 12px",
     background: "#1a1a2e",
     color: "#e0e0e0",
     fontFamily: "system-ui, sans-serif",
-    fontSize: "14px",
+    fontSize: "13px",
   },
   row: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: "12px",
-    marginBottom: "2px",
-  },
-  label: {
-    flex: 1,
+    gap: "8px",
   },
   score: {
     fontWeight: "bold",
     color: "#ffd700",
+    minWidth: "28px",
+  },
+  mid: {
+    flex: 1,
+    textAlign: "center" as const,
+  },
+  right: {
+    fontSize: "12px",
+    color: "#a0a0c0",
+    textAlign: "right" as const,
   },
   terrain: {
     color: "#a8e06c",
-    fontSize: "12px",
   },
   roll: {
-    color: "#fff",
+    color: "#e0e0e0",
   },
 };
