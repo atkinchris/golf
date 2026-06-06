@@ -92,17 +92,17 @@ const styles: Record<string, React.CSSProperties> = {
   grid: {
     display: "flex",
     flexDirection: "column",
-    gap: "4px",
+    gap: "3px",
     alignItems: "center",
   },
   row: {
     display: "flex",
-    gap: "4px",
+    gap: "3px",
   },
   arrowButton: {
-    width: "56px",
-    height: "56px",
-    fontSize: "24px",
+    width: "44px",
+    height: "44px",
+    fontSize: "20px",
     border: "2px solid #444",
     borderRadius: "8px",
     background: "#2a2a3e",
@@ -115,8 +115,8 @@ const styles: Record<string, React.CSSProperties> = {
     transition: "opacity 0.15s",
   },
   centerCell: {
-    width: "56px",
-    height: "56px",
+    width: "44px",
+    height: "44px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -124,14 +124,14 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: "8px",
     background: "#1a1a2e",
     color: "#ffd700",
-    fontSize: "20px",
+    fontSize: "18px",
     fontWeight: "bold",
   },
   rollValue: {
-    fontSize: "22px",
+    fontSize: "18px",
   },
   dot: {
     color: "#555",
-    fontSize: "16px",
+    fontSize: "14px",
   },
 };
