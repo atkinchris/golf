@@ -4,7 +4,6 @@ import {
   type GameState,
   PAR,
   Phase,
-  STARTING_MULLIGANS,
   type Terrain,
 } from "./types";
 import { getCell, getTerrainModifier, validateMove } from "./validation";
@@ -17,8 +16,6 @@ function initialState(): GameState {
     currentRoll: null,
     rawRoll: null,
     stroke: 0,
-    mulligansRemaining: STARTING_MULLIGANS,
-    teeOffRerollAvailable: true,
     par: PAR,
     shotHistory: [],
     isComplete: false,
@@ -35,8 +32,6 @@ function applyEvent(state: GameState, event: GameEvent): GameState {
         ball: { ...course.tee },
         phase: Phase.AwaitingRoll,
         stroke: 0,
-        mulligansRemaining: STARTING_MULLIGANS,
-        teeOffRerollAvailable: true,
         shotHistory: [],
         isComplete: false,
         currentRoll: null,
@@ -61,27 +56,6 @@ function applyEvent(state: GameState, event: GameEvent): GameState {
       };
     }
 
-    case "MulliganUsed": {
-      // Tee-off free reroll: consume the flag, don't spend a mulligan
-      if (state.teeOffRerollAvailable) {
-        return {
-          ...state,
-          phase: Phase.AwaitingRoll,
-          teeOffRerollAvailable: false,
-          currentRoll: null,
-          rawRoll: null,
-        };
-      }
-      if (state.mulligansRemaining <= 0) return state;
-      return {
-        ...state,
-        phase: Phase.AwaitingRoll,
-        mulligansRemaining: state.mulligansRemaining - 1,
-        currentRoll: null,
-        rawRoll: null,
-      };
-    }
-
     case "DirectionChosen": {
       if (!state.course || state.currentRoll === null) return state;
 
@@ -98,7 +72,6 @@ function applyEvent(state: GameState, event: GameEvent): GameState {
         stroke: state.stroke + 1,
         currentRoll: null,
         rawRoll: null,
-        teeOffRerollAvailable: false,
         shotHistory: [...state.shotHistory, { from, to }],
         isComplete: result.holesOut,
       };
@@ -120,7 +93,6 @@ function applyEvent(state: GameState, event: GameEvent): GameState {
         stroke: state.stroke + 1,
         currentRoll: null,
         rawRoll: null,
-        teeOffRerollAvailable: false,
         shotHistory: [...state.shotHistory, { from, to }],
         isComplete: result.holesOut,
       };

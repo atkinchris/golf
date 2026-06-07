@@ -23,7 +23,6 @@ A browser-based implementation of the Dice Golf tabletop game. Roll a d6, pick a
 ### Re-rolls
 
 - On your tee-off shot, you get one free re-roll.
-- You have 6 mulligans per hole to re-roll any other shot. You must use the second roll.
 
 See `RULES.md` for the full rules.
 
@@ -72,9 +71,9 @@ src/
   components/      React UI layer
     App.tsx         Top-level wiring and event dispatch
     GameCanvas.tsx  Canvas 2D renderer (cached static + animated dynamic layer)
-    HUD.tsx         Stroke count, mulligans, terrain, roll display
+    HUD.tsx         Stroke count, terrain, roll display
     DirectionPicker.tsx  8-directional arrow controls
-    DiceButton.tsx  Roll / mulligan / putt buttons
+    ActionColumn.tsx  Roll button
   hooks/
     useAnimation.ts    Ball position interpolation between state changes
     useGameStorage.ts  localStorage save/load and game history

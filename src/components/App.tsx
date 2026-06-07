@@ -65,15 +65,6 @@ export function App() {
     dispatch({ type: "DiceRolled", value });
   }, [dispatch]);
 
-  const handleMulligan = useCallback(() => {
-    dispatch({ type: "MulliganUsed" });
-    // Immediately roll after mulligan
-    setTimeout(() => {
-      const value = Math.floor(Math.random() * 6) + 1;
-      dispatch({ type: "DiceRolled", value });
-    }, 50);
-  }, [dispatch]);
-
   const handleDirection = useCallback(
     (direction: Direction) => {
       if (state.phase === Phase.AwaitingDirection) {
@@ -123,7 +114,6 @@ export function App() {
             <ActionColumn
               state={state}
               onRoll={handleRoll}
-              onMulligan={handleMulligan}
               disabled={isAnimating}
             />
           </div>

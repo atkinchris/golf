@@ -6,7 +6,6 @@ import {
   GRID_WIDTH,
   PAR,
   Phase,
-  STARTING_MULLIGANS,
   Terrain,
 } from "./types";
 
@@ -25,8 +24,6 @@ describe("reduce", () => {
       expect(state.phase).toBe(Phase.NotStarted);
       expect(state.course).toBeNull();
       expect(state.stroke).toBe(0);
-      expect(state.mulligansRemaining).toBe(STARTING_MULLIGANS);
-      expect(state.teeOffRerollAvailable).toBe(true);
       expect(state.par).toBe(PAR);
       expect(state.shotHistory).toEqual([]);
       expect(state.isComplete).toBe(false);
@@ -40,8 +37,6 @@ describe("reduce", () => {
       expect(state.course).not.toBeNull();
       expect(state.ball).toEqual(state.course?.tee);
       expect(state.stroke).toBe(0);
-      expect(state.mulligansRemaining).toBe(STARTING_MULLIGANS);
-      expect(state.teeOffRerollAvailable).toBe(true);
     });
 
     it("generates the same course for the same seed", () => {
@@ -108,7 +103,6 @@ describe("reduce", () => {
 
       expect(state.stroke).toBe(1);
       expect(state.phase).toBe(Phase.AwaitingRoll);
-      expect(state.teeOffRerollAvailable).toBe(false);
       expect(state.currentRoll).toBeNull();
       expect(state.rawRoll).toBeNull();
       expect(state.shotHistory).toHaveLength(1);
@@ -143,91 +137,19 @@ describe("reduce", () => {
     });
   });
 
-  describe("MulliganUsed", () => {
-    it("decrements mulligans and returns to AwaitingRoll", () => {
-      // Use a mulligan AFTER the tee-off (so the free reroll is gone)
-      const state = reduce([
-        ...startEvents(),
-        { type: "DiceRolled", value: 1 },
-        { type: "DirectionChosen", direction: "N" },
-        { type: "DiceRolled", value: 1 },
-        { type: "MulliganUsed" },
-      ]);
-      expect(state.phase).toBe(Phase.AwaitingRoll);
-      expect(state.mulligansRemaining).toBe(STARTING_MULLIGANS - 1);
-      expect(state.currentRoll).toBeNull();
-      expect(state.rawRoll).toBeNull();
-    });
-
-    it("is ignored when no mulligans remain", () => {
-      // First, consume the free tee-off reroll, then play a shot to clear it
-      const events: GameEvent[] = startEvents();
-      events.push({ type: "DiceRolled", value: 1 });
-      events.push({ type: "DirectionChosen", direction: "N" });
-      // Now use all mulligans
-      for (let i = 0; i < STARTING_MULLIGANS; i++) {
-        events.push({ type: "DiceRolled", value: 1 });
-        events.push({ type: "MulliganUsed" });
-      }
-      // One more roll + mulligan attempt
-      events.push({ type: "DiceRolled", value: 1 });
-      events.push({ type: "MulliganUsed" });
-
-      const state = reduce(events);
-      // Should still be AwaitingDirection (mulligan ignored)
-      expect(state.mulligansRemaining).toBe(0);
-      expect(state.phase).toBe(Phase.AwaitingDirection);
-    });
-  });
-
   describe("tee-off reroll", () => {
-    it("is available on the first stroke", () => {
-      const state = reduce(startEvents());
-      expect(state.teeOffRerollAvailable).toBe(true);
-    });
-
     it("is consumed after first direction chosen", () => {
       const state = reduce([
         ...startEvents(),
         { type: "DiceRolled", value: 1 },
         { type: "DirectionChosen", direction: "N" },
       ]);
-      expect(state.teeOffRerollAvailable).toBe(false);
+      expect(state.phase).toBe(Phase.AwaitingRoll);
     });
 
     it("is consumed after first putt chosen", () => {
       const state = reduce([...startEvents(), { type: "PuttChosen", direction: "N" }]);
-      expect(state.teeOffRerollAvailable).toBe(false);
-    });
-
-    it("does not consume a mulligan when used", () => {
-      const state = reduce([
-        ...startEvents(),
-        { type: "DiceRolled", value: 2 },
-        { type: "MulliganUsed" },
-      ]);
-      expect(state.mulligansRemaining).toBe(STARTING_MULLIGANS);
-    });
-
-    it("is consumed after one use via MulliganUsed", () => {
-      const state = reduce([
-        ...startEvents(),
-        { type: "DiceRolled", value: 2 },
-        { type: "MulliganUsed" },
-      ]);
-      expect(state.teeOffRerollAvailable).toBe(false);
-    });
-
-    it("cannot be used twice", () => {
-      const state = reduce([
-        ...startEvents(),
-        { type: "DiceRolled", value: 2 },
-        { type: "MulliganUsed" },
-        { type: "DiceRolled", value: 3 },
-        { type: "MulliganUsed" },
-      ]);
-      // First reroll was free, second costs a mulligan
-      expect(state.mulligansRemaining).toBe(STARTING_MULLIGANS - 1);
+      expect(state.phase).toBe(Phase.AwaitingRoll);
     });
   });
 
@@ -236,17 +158,13 @@ describe("reduce", () => {
       const events: GameEvent[] = [
         ...startEvents(),
         { type: "DiceRolled", value: 3 },
-        { type: "MulliganUsed" }, // free tee-off reroll
-        { type: "DiceRolled", value: 5 },
         { type: "DirectionChosen", direction: "N" },
-        { type: "DiceRolled", value: 2 },
+        { type: "DiceRolled", value: 5 },
         { type: "DirectionChosen", direction: "N" },
         { type: "PuttChosen", direction: "N" },
       ];
       const state = reduce(events);
       expect(state.stroke).toBe(3);
-      // First mulligan was free (tee-off reroll), so none consumed
-      expect(state.mulligansRemaining).toBe(STARTING_MULLIGANS);
       expect(state.shotHistory).toHaveLength(3);
     });
 

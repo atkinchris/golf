@@ -68,7 +68,6 @@ export const DEFAULT_COURSE_CONFIG: CourseConfig = {
 export const GRID_WIDTH = 20;
 export const GRID_HEIGHT = 30;
 export const PAR = 6;
-export const STARTING_MULLIGANS = 6;
 
 // ---- Events ----
 
@@ -84,10 +83,6 @@ export interface DiceRolledEvent {
   value: number; // raw d6 result 1-6
 }
 
-export interface MulliganUsedEvent {
-  type: "MulliganUsed";
-}
-
 export interface DirectionChosenEvent {
   type: "DirectionChosen";
   direction: Direction;
@@ -101,7 +96,6 @@ export interface PuttChosenEvent {
 export type GameEvent =
   | GameStartedEvent
   | DiceRolledEvent
-  | MulliganUsedEvent
   | DirectionChosenEvent
   | PuttChosenEvent;
 
@@ -126,8 +120,6 @@ export interface GameState {
   currentRoll: number | null; // effective roll after terrain modifier
   rawRoll: number | null; // die face before modifier
   stroke: number;
-  mulligansRemaining: number;
-  teeOffRerollAvailable: boolean;
   par: number;
   shotHistory: ShotRecord[];
   isComplete: boolean;

@@ -41,9 +41,7 @@ export function HUD({ state }: Props) {
           Str {state.stroke} / Par {state.par}
         </span>
         <span className="hud-right">
-          {"●".repeat(state.mulligansRemaining)}
-          {"○".repeat(6 - state.mulligansRemaining)}
-          {terrainText && <span className="hud-terrain"> {terrainText}</span>}
+          {terrainText && <span className="hud-terrain">{terrainText}</span>}
           {state.rawRoll !== null && (
             <span className="hud-roll">
               {" "}

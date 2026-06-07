@@ -12,9 +12,7 @@ Check your landing spot and make sure your path is clear. You may only go throug
 
 ## Re-rolling
 
-When teeing off, if you don't like your roll, you may re-roll once. You must use the second roll amount. The same goes for Mulligans.
-
-You have 6 "Mulligans" per hole that can be used to re-roll any time.
+When teeing off, if you don't like your roll, you may re-roll once. You must use the second roll amount.
 
 ## Putting
 
