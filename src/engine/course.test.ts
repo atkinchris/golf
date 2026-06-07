@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { generateCourse } from "./course";
-import {
-  DEFAULT_COURSE_CONFIG,
-  GRID_HEIGHT,
-  GRID_WIDTH,
-  Terrain,
-  type Position,
-} from "./types";
+import { DEFAULT_COURSE_CONFIG, GRID_HEIGHT, GRID_WIDTH, type Position, Terrain } from "./types";
 
 describe("generateCourse", () => {
   describe("determinism", () => {
@@ -171,8 +165,14 @@ describe("generateCourse", () => {
             break;
           }
           for (const [dx, dy] of [
-            [0, -1], [0, 1], [1, 0], [-1, 0],
-            [1, -1], [1, 1], [-1, -1], [-1, 1],
+            [0, -1],
+            [0, 1],
+            [1, 0],
+            [-1, 0],
+            [1, -1],
+            [1, 1],
+            [-1, -1],
+            [-1, 1],
           ] as const) {
             const nx = pos.x + dx;
             const ny = pos.y + dy;
@@ -203,30 +203,45 @@ describe("generateCourse", () => {
 
         for (let x = 0; x < width; x++) {
           for (const y of [0, height - 1]) {
-            if (grid[y]![x]!.terrain !== Terrain.Water) {
+            if (grid[y]?.[x]?.terrain !== Terrain.Water) {
               const key = `${x},${y}`;
-              if (!visited.has(key)) { visited.add(key); queue.push({ x, y }); }
+              if (!visited.has(key)) {
+                visited.add(key);
+                queue.push({ x, y });
+              }
             }
           }
         }
         for (let y = 0; y < height; y++) {
           for (const x of [0, width - 1]) {
-            if (grid[y]![x]!.terrain !== Terrain.Water) {
+            if (grid[y]?.[x]?.terrain !== Terrain.Water) {
               const key = `${x},${y}`;
-              if (!visited.has(key)) { visited.add(key); queue.push({ x, y }); }
+              if (!visited.has(key)) {
+                visited.add(key);
+                queue.push({ x, y });
+              }
             }
           }
         }
 
         while (queue.length > 0) {
           const pos = queue.shift()!;
-          for (const [dx, dy] of [[0,-1],[0,1],[1,0],[-1,0],[1,-1],[1,1],[-1,-1],[-1,1]] as const) {
+          for (const [dx, dy] of [
+            [0, -1],
+            [0, 1],
+            [1, 0],
+            [-1, 0],
+            [1, -1],
+            [1, 1],
+            [-1, -1],
+            [-1, 1],
+          ] as const) {
             const nx = pos.x + dx;
             const ny = pos.y + dy;
             const key = `${nx},${ny}`;
             if (visited.has(key)) continue;
             if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
-            if (grid[ny]![nx]!.terrain === Terrain.Water) continue;
+            if (grid[ny]?.[nx]?.terrain === Terrain.Water) continue;
             visited.add(key);
             queue.push({ x: nx, y: ny });
           }
@@ -235,7 +250,7 @@ describe("generateCourse", () => {
         // Every non-water cell must have been visited
         for (let y = 0; y < height; y++) {
           for (let x = 0; x < width; x++) {
-            if (grid[y]![x]!.terrain !== Terrain.Water) {
+            if (grid[y]?.[x]?.terrain !== Terrain.Water) {
               expect(visited.has(`${x},${y}`)).toBe(true);
             }
           }
@@ -252,7 +267,7 @@ describe("generateCourse", () => {
         const fairwayCells: string[] = [];
         for (let y = 0; y < course.height; y++) {
           for (let x = 0; x < course.width; x++) {
-            if (course.grid[y]![x]!.terrain === Terrain.Fairway) {
+            if (course.grid[y]?.[x]?.terrain === Terrain.Fairway) {
               fairwayCells.push(`${x},${y}`);
             }
           }

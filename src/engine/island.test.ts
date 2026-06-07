@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   createGrid,
-  placeIsland,
-  validateWaterInvariant,
-  placeTreeCluster,
   isReachable,
+  placeIsland,
+  placeTreeCluster,
+  setTerrain,
+  validateWaterInvariant,
 } from "./island";
 import { PRNG } from "./prng";
 import { Terrain } from "./types";
@@ -30,7 +31,7 @@ describe("placeIsland", () => {
     let fairwayCount = 0;
     for (let dy = 0; dy < 3; dy++) {
       for (let dx = 0; dx < 3; dx++) {
-        if (grid[2 + dy]![2 + dx]!.terrain === Terrain.Fairway) {
+        if (grid[2 + dy]?.[2 + dx]?.terrain === Terrain.Fairway) {
           fairwayCount++;
         }
       }
@@ -50,35 +51,35 @@ describe("validateWaterInvariant", () => {
   it("converts enclosed rough cells to water", () => {
     const grid = createGrid(5, 5);
     for (let i = 0; i < 5; i++) {
-      grid[0]![i]!.terrain = Terrain.Water;
-      grid[4]![i]!.terrain = Terrain.Water;
-      grid[i]![0]!.terrain = Terrain.Water;
-      grid[i]![4]!.terrain = Terrain.Water;
+      setTerrain(grid, 5, 5, i, 0, Terrain.Water);
+      setTerrain(grid, 5, 5, i, 4, Terrain.Water);
+      setTerrain(grid, 5, 5, 0, i, Terrain.Water);
+      setTerrain(grid, 5, 5, 4, i, Terrain.Water);
     }
     validateWaterInvariant(grid, 5, 5);
-    expect(grid[2]![2]!.terrain).toBe(Terrain.Water);
-    expect(grid[1]![1]!.terrain).toBe(Terrain.Water);
+    expect(grid[2]?.[2]?.terrain).toBe(Terrain.Water);
+    expect(grid[1]?.[1]?.terrain).toBe(Terrain.Water);
   });
 
   it("does not convert rough cells reachable from edges", () => {
     const grid = createGrid(5, 5);
-    grid[2]![2]!.terrain = Terrain.Water;
+    setTerrain(grid, 5, 5, 2, 2, Terrain.Water);
     validateWaterInvariant(grid, 5, 5);
-    expect(grid[0]![0]!.terrain).toBe(Terrain.Rough);
-    expect(grid[4]![4]!.terrain).toBe(Terrain.Rough);
+    expect(grid[0]?.[0]?.terrain).toBe(Terrain.Rough);
+    expect(grid[4]?.[4]?.terrain).toBe(Terrain.Rough);
   });
 
-  it("preserves fairway islands enclosed by water", () => {
+  it("converts enclosed fairway to water", () => {
     const grid = createGrid(5, 5);
     for (let i = 0; i < 5; i++) {
-      grid[0]![i]!.terrain = Terrain.Water;
-      grid[4]![i]!.terrain = Terrain.Water;
-      grid[i]![0]!.terrain = Terrain.Water;
-      grid[i]![4]!.terrain = Terrain.Water;
+      setTerrain(grid, 5, 5, i, 0, Terrain.Water);
+      setTerrain(grid, 5, 5, i, 4, Terrain.Water);
+      setTerrain(grid, 5, 5, 0, i, Terrain.Water);
+      setTerrain(grid, 5, 5, 4, i, Terrain.Water);
     }
-    grid[2]![2]!.terrain = Terrain.Fairway;
+    setTerrain(grid, 5, 5, 2, 2, Terrain.Fairway);
     validateWaterInvariant(grid, 5, 5);
-    expect(grid[2]![2]!.terrain).toBe(Terrain.Water);
+    expect(grid[2]?.[2]?.terrain).toBe(Terrain.Water);
   });
 });
 
@@ -101,13 +102,13 @@ describe("placeTreeCluster", () => {
     const grid = createGrid(12, 18);
     for (let y = 4; y < 8; y++) {
       for (let x = 2; x < 6; x++) {
-        grid[y]![x]!.terrain = Terrain.Fairway;
+        setTerrain(grid, 12, 18, x, y, Terrain.Fairway);
       }
     }
     placeTreeCluster(grid, 12, 18, 3, 5, 3, 3);
     for (let y = 4; y < 8; y++) {
       for (let x = 2; x < 6; x++) {
-        expect(grid[y]![x]!.terrain).not.toBe(Terrain.Trees);
+        expect(grid[y]?.[x]?.terrain).not.toBe(Terrain.Trees);
       }
     }
   });
@@ -122,7 +123,7 @@ describe("isReachable", () => {
   it("returns false when blocked by water and trees", () => {
     const grid = createGrid(5, 5);
     for (let x = 0; x < 5; x++) {
-      grid[2]![x]!.terrain = Terrain.Water;
+      setTerrain(grid, 5, 5, x, 2, Terrain.Water);
     }
     expect(isReachable(grid, 5, 5, { x: 0, y: 4 }, { x: 0, y: 0 })).toBe(false);
   });

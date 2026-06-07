@@ -1,17 +1,5 @@
-import {
-  dogleg,
-  fortressGreen,
-  gauntlet,
-  islandHop,
-  splitDecision,
-} from "./archetypes";
-import {
-  createGrid,
-  isReachable,
-  placeSlopes,
-  setTerrain,
-  validateWaterInvariant,
-} from "./island";
+import { dogleg, fortressGreen, gauntlet, islandHop, splitDecision } from "./archetypes";
+import { createGrid, isReachable, placeSlopes, setTerrain, validateWaterInvariant } from "./island";
 import { PRNG } from "./prng";
 import {
   ARCHETYPES,
