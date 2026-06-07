@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { Course, GameState, Position } from "../engine/types";
 import { Terrain } from "../engine/types";
+import "./GameCanvas.css";
 
 const TERRAIN_COLOURS: Record<Terrain, string> = {
   [Terrain.Rough]: "#7ec850",
@@ -185,13 +186,7 @@ export function GameCanvas({ state, animatedBall }: Props) {
       ref={canvasRef}
       width={state.course.width * CELL_SIZE}
       height={state.course.height * CELL_SIZE}
-      style={{
-        width: "100%",
-        maxWidth: "100%",
-        height: "auto",
-        imageRendering: "pixelated",
-        display: "block",
-      }}
+      className="game-canvas"
     />
   );
 }
