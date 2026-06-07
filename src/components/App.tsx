@@ -14,6 +14,21 @@ export function generateSeed(): string {
   return uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals], separator: "-" });
 }
 
+export function getSeedFromUrl(search: string): string | null {
+  const params = new URLSearchParams(search);
+  return params.get("seed");
+}
+
+export function writeSeedToUrl(seed: string, replace: boolean): void {
+  const url = new URL(window.location.href);
+  url.searchParams.set("seed", seed);
+  if (replace) {
+    history.replaceState(null, "", url.toString());
+  } else {
+    history.pushState(null, "", url.toString());
+  }
+}
+
 export function App() {
   const { loadedEvents, saveEvents, recordCompletion } = useGameStorage();
   const [events, setEvents] = useState<GameEvent[]>([]);
@@ -22,17 +37,38 @@ export function App() {
   // Load saved game or start new
   useEffect(() => {
     if (initialised) return;
-    if (loadedEvents && loadedEvents.length > 0) {
+    const urlSeed = getSeedFromUrl(window.location.search);
+    if (urlSeed) {
+      // URL has a seed - check if saved game matches it
+      const savedSeed =
+        loadedEvents && loadedEvents.length > 0
+          ? ((
+              loadedEvents.find((e) => e.type === "GameStarted") as
+                | { type: "GameStarted"; seed: string }
+                | undefined
+            )?.seed ?? null)
+          : null;
+      if (savedSeed === urlSeed) {
+        setEvents(loadedEvents ?? []);
+      } else {
+        setEvents([
+          { type: "GameStarted", seed: urlSeed, gridWidth: GRID_WIDTH, gridHeight: GRID_HEIGHT },
+        ]);
+      }
+    } else if (loadedEvents && loadedEvents.length > 0) {
+      // Restore saved game and reflect its seed in the URL
+      const savedSeed = (
+        loadedEvents.find((e) => e.type === "GameStarted") as
+          | { type: "GameStarted"; seed: string }
+          | undefined
+      )?.seed;
+      if (savedSeed) writeSeedToUrl(savedSeed, true);
       setEvents(loadedEvents);
     } else {
-      setEvents([
-        {
-          type: "GameStarted",
-          seed: generateSeed(),
-          gridWidth: GRID_WIDTH,
-          gridHeight: GRID_HEIGHT,
-        },
-      ]);
+      // No saved game, no URL seed - generate fresh
+      const seed = generateSeed();
+      writeSeedToUrl(seed, true);
+      setEvents([{ type: "GameStarted", seed, gridWidth: GRID_WIDTH, gridHeight: GRID_HEIGHT }]);
     }
     setInitialised(true);
   }, [loadedEvents, initialised]);
