@@ -20,9 +20,8 @@ const KEY_TO_DIRECTION: Record<string, Direction> = {
   c: "SE",
 };
 
-const DIRECTION_KEYS = new Set(Object.keys(KEY_TO_DIRECTION));
 const ROLL_KEY = "s";
-const ALL_HANDLED_KEYS = new Set([...DIRECTION_KEYS, ROLL_KEY]);
+const ALL_HANDLED_KEYS = new Set([...Object.keys(KEY_TO_DIRECTION), ROLL_KEY]);
 
 export function useKeyboard({ phase, disabled, onRoll, onDirection }: UseKeyboardOptions): void {
   useEffect(() => {
