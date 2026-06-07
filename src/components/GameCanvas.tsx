@@ -25,10 +25,6 @@ const PATH_COLOUR = "#ffffff88";
 const CORNER_RADIUS = 24;
 const CELL_SIZE = 64;
 
-// Suppress unused-variable errors for constants/functions used by upcoming rendering tasks
-void DOT_COLOUR_LIGHT, DOT_COLOUR_DARK, GRID_LINE_COLOUR, HATCH_COLOUR, TREE_COLOUR, CORNER_RADIUS;
-void isSameTerrain, roundedTilePath;
-
 interface Props {
   state: GameState;
   /** Animated ball position (may differ from state.ball during animation). */
@@ -110,55 +106,186 @@ function roundedTilePath(
 }
 
 function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: number) {
-  for (let y = 0; y < course.height; y++) {
-    for (let x = 0; x < course.width; x++) {
-      const cell = course.grid[y]?.[x];
-      if (!cell) continue;
-      ctx.fillStyle = TERRAIN_COLOURS[cell.terrain];
-      ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+  const { grid, width, height } = course;
 
-      // Grid line
-      ctx.strokeStyle = "#00000011";
-      ctx.lineWidth = 0.5;
-      ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+  // Layer 1: Rough base - fill entire canvas
+  ctx.fillStyle = TERRAIN_COLOURS[Terrain.Rough];
+  ctx.fillRect(0, 0, width * cellSize, height * cellSize);
 
-      // Slope arrow
-      if (cell.slope) {
-        ctx.fillStyle = SLOPE_ARROW_COLOUR;
-        ctx.font = `${cellSize * 0.6}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(
-          DIRECTION_ARROWS[cell.slope] ?? "",
-          x * cellSize + cellSize / 2,
-          y * cellSize + cellSize / 2,
-        );
-      }
+  // Dot grid on rough
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      ctx.fillStyle = DOT_COLOUR_LIGHT;
+      ctx.beginPath();
+      ctx.arc(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 3, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 
-  // Tee marker
+  // Layer 2: Fairway
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (grid[y]?.[x]?.terrain !== Terrain.Fairway) continue;
+      const px = x * cellSize;
+      const py = y * cellSize;
+      roundedTilePath(ctx, px, py, x, y, grid, width, height, cellSize, CORNER_RADIUS);
+      ctx.fillStyle = TERRAIN_COLOURS[Terrain.Fairway];
+      ctx.fill();
+      // Dot
+      ctx.fillStyle = DOT_COLOUR_LIGHT;
+      ctx.beginPath();
+      ctx.arc(px + cellSize / 2, py + cellSize / 2, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Layer 3: Sand with diagonal hatch
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (grid[y]?.[x]?.terrain !== Terrain.Sand) continue;
+      const px = x * cellSize;
+      const py = y * cellSize;
+      roundedTilePath(ctx, px, py, x, y, grid, width, height, cellSize, CORNER_RADIUS);
+      ctx.fillStyle = TERRAIN_COLOURS[Terrain.Sand];
+      ctx.fill();
+      // Diagonal hatch - use global coordinates for continuity
+      ctx.save();
+      roundedTilePath(ctx, px, py, x, y, grid, width, height, cellSize, CORNER_RADIUS);
+      ctx.clip();
+      ctx.strokeStyle = HATCH_COLOUR;
+      ctx.lineWidth = 3;
+      const hatchSpacing = 10;
+      // Draw lines from global y-intercept so they align across tiles
+      const startGlobal = Math.floor(px / hatchSpacing) * hatchSpacing;
+      for (let gx = startGlobal - cellSize; gx < px + cellSize * 2; gx += hatchSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(gx, py - (gx - px));
+        ctx.lineTo(gx + cellSize, py - (gx - px) + cellSize);
+        ctx.stroke();
+      }
+      ctx.restore();
+      // Dot
+      ctx.fillStyle = DOT_COLOUR_LIGHT;
+      ctx.beginPath();
+      ctx.arc(px + cellSize / 2, py + cellSize / 2, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Layer 4: Water - solid fill, grid lines only on outer edges
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (grid[y]?.[x]?.terrain !== Terrain.Water) continue;
+      const px = x * cellSize;
+      const py = y * cellSize;
+      roundedTilePath(ctx, px, py, x, y, grid, width, height, cellSize, CORNER_RADIUS);
+      ctx.fillStyle = TERRAIN_COLOURS[Terrain.Water];
+      ctx.fill();
+    }
+  }
+  // Water border lines (separate pass to avoid overlap issues)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (grid[y]?.[x]?.terrain !== Terrain.Water) continue;
+      const px = x * cellSize;
+      const py = y * cellSize;
+      ctx.save();
+      roundedTilePath(ctx, px, py, x, y, grid, width, height, cellSize, CORNER_RADIUS);
+      ctx.clip();
+      ctx.strokeStyle = GRID_LINE_COLOUR;
+      ctx.lineWidth = 1.5;
+      if (!isSameTerrain(grid, x, y - 1, Terrain.Water, width, height)) {
+        ctx.beginPath();
+        ctx.moveTo(px, py + 0.5);
+        ctx.lineTo(px + cellSize, py + 0.5);
+        ctx.stroke();
+      }
+      if (!isSameTerrain(grid, x, y + 1, Terrain.Water, width, height)) {
+        ctx.beginPath();
+        ctx.moveTo(px, py + cellSize - 0.5);
+        ctx.lineTo(px + cellSize, py + cellSize - 0.5);
+        ctx.stroke();
+      }
+      if (!isSameTerrain(grid, x - 1, y, Terrain.Water, width, height)) {
+        ctx.beginPath();
+        ctx.moveTo(px + 0.5, py);
+        ctx.lineTo(px + 0.5, py + cellSize);
+        ctx.stroke();
+      }
+      if (!isSameTerrain(grid, x + 1, y, Terrain.Water, width, height)) {
+        ctx.beginPath();
+        ctx.moveTo(px + cellSize - 0.5, py);
+        ctx.lineTo(px + cellSize - 0.5, py + cellSize);
+        ctx.stroke();
+      }
+      ctx.restore();
+      // Light dot on water
+      ctx.fillStyle = DOT_COLOUR_DARK;
+      ctx.beginPath();
+      ctx.arc(px + cellSize / 2, py + cellSize / 2, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Layer 5: Tree icons
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (grid[y]?.[x]?.terrain !== Terrain.Trees) continue;
+      const cx = x * cellSize + cellSize / 2;
+      const cy = y * cellSize + cellSize / 2;
+      const size = 16;
+      ctx.fillStyle = TREE_COLOUR;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size);
+      ctx.lineTo(cx - size * 0.65, cy + size * 0.4);
+      ctx.lineTo(cx + size * 0.65, cy + size * 0.4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillRect(cx - 2, cy + size * 0.4, 4, size * 0.4);
+    }
+  }
+
+  // Slope arrows
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const cell = grid[y]?.[x];
+      if (!cell?.slope) continue;
+      ctx.fillStyle = SLOPE_ARROW_COLOUR;
+      ctx.font = `${cellSize * 0.4}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(
+        DIRECTION_ARROWS[cell.slope] ?? "",
+        x * cellSize + cellSize / 2,
+        y * cellSize + cellSize / 2,
+      );
+    }
+  }
+
+  // Tee marker (filled black circle)
   ctx.fillStyle = TEE_COLOUR;
   ctx.beginPath();
-  ctx.rect(
-    course.tee.x * cellSize + cellSize * 0.2,
-    course.tee.y * cellSize + cellSize * 0.2,
-    cellSize * 0.6,
-    cellSize * 0.6,
-  );
-  ctx.fill();
-
-  // Hole marker
-  ctx.fillStyle = HOLE_COLOUR;
-  ctx.beginPath();
   ctx.arc(
-    course.hole.x * cellSize + cellSize / 2,
-    course.hole.y * cellSize + cellSize / 2,
-    cellSize * 0.3,
+    course.tee.x * cellSize + cellSize / 2,
+    course.tee.y * cellSize + cellSize / 2,
+    12,
     0,
     Math.PI * 2,
   );
   ctx.fill();
+
+  // Hole marker (stroked ring)
+  ctx.strokeStyle = HOLE_COLOUR;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(
+    course.hole.x * cellSize + cellSize / 2,
+    course.hole.y * cellSize + cellSize / 2,
+    10,
+    0,
+    Math.PI * 2,
+  );
+  ctx.stroke();
 }
 
 function drawShotPath(
