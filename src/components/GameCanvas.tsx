@@ -22,7 +22,6 @@ const BALL_COLOUR = "#ffffff";
 const BALL_OUTLINE = "#1a1a1a";
 const TEE_COLOUR = "#1a1a1a";
 const HOLE_COLOUR = "#1a1a1a";
-const PATH_COLOUR = "#1a1a1a66";
 const CORNER_RADIUS = 24;
 const CELL_SIZE = 64;
 
@@ -293,6 +292,15 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
     }
   }
 
+}
+
+function drawTeeAndHole(
+  ctx: CanvasRenderingContext2D,
+  course: GameState["course"],
+  cellSize: number,
+) {
+  if (!course) return;
+
   // Tee marker (filled black circle)
   ctx.fillStyle = TEE_COLOUR;
   ctx.beginPath();
@@ -326,18 +334,38 @@ function drawShotPath(
 ) {
   if (shotHistory.length === 0) return;
 
-  ctx.strokeStyle = PATH_COLOUR;
-  ctx.lineWidth = 3;
-  ctx.setLineDash([8, 8]);
-
-  for (const shot of shotHistory) {
-    ctx.beginPath();
-    ctx.moveTo(shot.from.x * cellSize + cellSize / 2, shot.from.y * cellSize + cellSize / 2);
-    ctx.lineTo(shot.to.x * cellSize + cellSize / 2, shot.to.y * cellSize + cellSize / 2);
-    ctx.stroke();
+  // Build an ordered list of waypoints from the shot history.
+  // Each ShotRecord connects to the next, so we collect all unique points
+  // in sequence: from[0], to[0]/from[1], to[1]/from[2], ... to[n].
+  const pts: { x: number; y: number }[] = [];
+  for (let i = 0; i < shotHistory.length; i++) {
+    const shot = shotHistory[i];
+    const fx = shot.from.x * cellSize + cellSize / 2;
+    const fy = shot.from.y * cellSize + cellSize / 2;
+    if (i === 0) pts.push({ x: fx, y: fy });
+    pts.push({ x: shot.to.x * cellSize + cellSize / 2, y: shot.to.y * cellSize + cellSize / 2 });
   }
 
+  const cornerRadius = cellSize * 0.35;
+
+  ctx.strokeStyle = "#ffdd00";
+  ctx.lineWidth = 6;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
   ctx.setLineDash([]);
+  ctx.lineDashOffset = 0;
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+
+  for (let i = 1; i < pts.length - 1; i++) {
+    ctx.arcTo(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y, cornerRadius);
+  }
+
+  // Draw to the final point
+  ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+
+  ctx.stroke();
 }
 
 function drawBall(ctx: CanvasRenderingContext2D, pos: Position, cellSize: number) {
@@ -395,6 +423,9 @@ export function GameCanvas({ state, animatedBall }: Props) {
 
     // Shot path
     drawShotPath(ctx, state.shotHistory, CELL_SIZE);
+
+    // Tee and hole (on top of path)
+    drawTeeAndHole(ctx, state.course, CELL_SIZE);
 
     // Ball
     const ballPos = animatedBall ?? state.ball;
