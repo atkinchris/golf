@@ -3,6 +3,7 @@ import { reduce } from "../engine/reducer";
 import { type Direction, type GameEvent, GRID_HEIGHT, GRID_WIDTH, Phase } from "../engine/types";
 import { useAnimation } from "../hooks/useAnimation";
 import { useGameStorage } from "../hooks/useGameStorage";
+import { useIsWide } from "../hooks/useIsWide";
 import { ActionColumn } from "./ActionColumn";
 import { DirectionPicker } from "./DirectionPicker";
 import { GameCanvas } from "./GameCanvas";
@@ -40,6 +41,8 @@ export function App() {
 
   // Animation
   const { animatedBall, isAnimating } = useAnimation(state.ball);
+
+  const isWide = useIsWide();
 
   // Auto-save on every event change
   useEffect(() => {
@@ -100,52 +103,124 @@ export function App() {
   if (!initialised) return null;
 
   return (
-    <div style={styles.container}>
-      <div style={styles.canvasContainer}>
-        <GameCanvas state={state} animatedBall={animatedBall} />
-      </div>
-
-      <HUD state={state} />
-
-      {state.phase === Phase.HoledOut ? (
-        <div style={styles.gameOver}>
-          <div style={styles.gameOverText}>
-            Holed out in <strong>{state.stroke}</strong> strokes!
-            {state.stroke <= state.par && " 🏆"}
+    <div style={isWide ? styles.containerWide : styles.containerMobile}>
+      {isWide ? (
+        <>
+          {/* Left pane: canvas */}
+          <div style={styles.canvasPaneWide}>
+            <GameCanvas state={state} animatedBall={animatedBall} />
           </div>
-          <button type="button" style={styles.newGameButton} onClick={handleNewGame}>
-            New Game
-          </button>
-        </div>
+          {/* Right pane: controls */}
+          <div style={styles.controlsPaneWide}>
+            <HUD state={state} />
+            {state.phase === Phase.HoledOut ? (
+              <div style={styles.gameOver}>
+                <div style={styles.gameOverText}>
+                  Holed out in <strong>{state.stroke}</strong> strokes!
+                  {state.stroke <= state.par && " 🏆"}
+                </div>
+                <button type="button" style={styles.newGameButton} onClick={handleNewGame}>
+                  New Game
+                </button>
+              </div>
+            ) : (
+              <div style={styles.controlsGroupWide}>
+                <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
+                <ActionColumn
+                  state={state}
+                  onRoll={handleRoll}
+                  onMulligan={handleMulligan}
+                  disabled={isAnimating}
+                />
+              </div>
+            )}
+          </div>
+        </>
       ) : (
-        <div style={styles.controlsRow}>
-          <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
-          <ActionColumn
-            state={state}
-            onRoll={handleRoll}
-            onMulligan={handleMulligan}
-            disabled={isAnimating}
-          />
-        </div>
+        <>
+          {/* Canvas fills remaining space */}
+          <div style={styles.canvasContainerMobile}>
+            <GameCanvas state={state} animatedBall={animatedBall} />
+          </div>
+          <HUD state={state} />
+          {state.phase === Phase.HoledOut ? (
+            <div style={styles.gameOver}>
+              <div style={styles.gameOverText}>
+                Holed out in <strong>{state.stroke}</strong> strokes!
+                {state.stroke <= state.par && " 🏆"}
+              </div>
+              <button type="button" style={styles.newGameButton} onClick={handleNewGame}>
+                New Game
+              </button>
+            </div>
+          ) : (
+            <div style={styles.controlsRow}>
+              <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
+              <ActionColumn
+                state={state}
+                onRoll={handleRoll}
+                onMulligan={handleMulligan}
+                disabled={isAnimating}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  container: {
+  // --- Mobile layout ---
+  containerMobile: {
     display: "flex",
     flexDirection: "column",
-    minHeight: "100dvh",
+    height: "100dvh",
+    overflow: "hidden",
     background: "#0f0f23",
   },
-  canvasContainer: {
+  canvasContainerMobile: {
     flex: 1,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+    minHeight: 0, // allows flex child to shrink below content size
   },
+  // --- Desktop/wide layout ---
+  containerWide: {
+    display: "flex",
+    flexDirection: "row",
+    height: "100dvh",
+    overflow: "hidden",
+    background: "#0f0f23",
+  },
+  canvasPaneWide: {
+    flex: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    minWidth: 0,
+    maxWidth: "400px",
+  },
+  controlsPaneWide: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "12px",
+    padding: "16px",
+    overflow: "hidden",
+  },
+  controlsGroupWide: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "8px",
+  },
+  // --- Shared ---
   controlsRow: {
     display: "flex",
     alignItems: "stretch",
