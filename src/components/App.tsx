@@ -100,8 +100,7 @@ export function App() {
   // Calculate cell size based on viewport width
   const cellSize = useMemo(() => {
     if (typeof window === "undefined") return 16;
-    const maxWidth = Math.min(window.innerWidth, 480);
-    return Math.floor(maxWidth / GRID_WIDTH);
+    return Math.floor(window.innerWidth / GRID_WIDTH);
   }, []);
 
   if (!initialised) return null;
@@ -127,12 +126,7 @@ export function App() {
       ) : (
         <div style={styles.controlsRow}>
           <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
-          <ActionColumn
-            state={state}
-            onRoll={handleRoll}
-            onMulligan={handleMulligan}
-            disabled={isAnimating}
-          />
+          <ActionColumn state={state} onRoll={handleRoll} onMulligan={handleMulligan} disabled={isAnimating} />
         </div>
       )}
     </div>
@@ -145,15 +139,12 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: "column",
     minHeight: "100dvh",
     background: "#0f0f23",
-    maxWidth: "480px",
-    margin: "0 auto",
   },
   canvasContainer: {
     flex: 1,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "8px",
     overflow: "hidden",
   },
   controlsRow: {
