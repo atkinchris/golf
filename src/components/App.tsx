@@ -115,15 +115,9 @@ export function App() {
   );
 
   const handleNewGame = useCallback(() => {
-    const newEvents: GameEvent[] = [
-      {
-        type: "GameStarted",
-        seed: generateSeed(),
-        gridWidth: GRID_WIDTH,
-        gridHeight: GRID_HEIGHT,
-      },
-    ];
-    setEvents(newEvents);
+    const seed = generateSeed();
+    writeSeedToUrl(seed, false);
+    setEvents([{ type: "GameStarted", seed, gridWidth: GRID_WIDTH, gridHeight: GRID_HEIGHT }]);
   }, []);
 
   if (!initialised) return null;
