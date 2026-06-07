@@ -4,6 +4,7 @@ import { reduce } from "../engine/reducer";
 import { type Direction, type GameEvent, GRID_HEIGHT, GRID_WIDTH, Phase } from "../engine/types";
 import { useAnimation } from "../hooks/useAnimation";
 import { useGameStorage } from "../hooks/useGameStorage";
+import { useKeyboard } from "../hooks/useKeyboard";
 import { ActionColumn } from "./ActionColumn";
 import "./App.css";
 import { DirectionPicker } from "./DirectionPicker";
@@ -113,6 +114,8 @@ export function App() {
     },
     [dispatch, state.phase],
   );
+
+  useKeyboard({ phase: state.phase, disabled: isAnimating, onRoll: handleRoll, onDirection: handleDirection });
 
   const handleNewGame = useCallback(() => {
     const seed = generateSeed();
