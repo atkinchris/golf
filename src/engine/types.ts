@@ -45,10 +45,18 @@ export interface Course {
   seed: string;
 }
 
+export const ARCHETYPES = [
+  "island-hop",
+  "gauntlet",
+  "split-decision",
+  "dogleg",
+  "fortress-green",
+] as const;
+export type Archetype = (typeof ARCHETYPES)[number];
+
 export interface CourseConfig {
-  fairwayWidthMin: number;
-  fairwayWidthMax: number;
-  controlPoints: number;
+  islandSizeMin: number;
+  islandSizeMax: number;
   treeDensity: number;
   sandTrapCount: number;
   waterProbability: number;
@@ -56,9 +64,8 @@ export interface CourseConfig {
 }
 
 export const DEFAULT_COURSE_CONFIG: CourseConfig = {
-  fairwayWidthMin: 3,
-  fairwayWidthMax: 5,
-  controlPoints: 1,
+  islandSizeMin: 3,
+  islandSizeMax: 6,
   treeDensity: 0.15,
   sandTrapCount: 2,
   waterProbability: 0.5,
