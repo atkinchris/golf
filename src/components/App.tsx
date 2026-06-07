@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { adjectives, animals, colors, uniqueNamesGenerator } from "unique-names-generator";
 import { reduce } from "../engine/reducer";
 import { type Direction, type GameEvent, GRID_HEIGHT, GRID_WIDTH, Phase } from "../engine/types";
 import { useAnimation } from "../hooks/useAnimation";
@@ -9,8 +10,8 @@ import { DirectionPicker } from "./DirectionPicker";
 import { GameCanvas } from "./GameCanvas";
 import { HUD } from "./HUD";
 
-function generateSeed(): string {
-  return Math.random().toString(36).substring(2, 10);
+export function generateSeed(): string {
+  return uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals], separator: "-" });
 }
 
 export function App() {
