@@ -123,7 +123,7 @@ function widenFairway(
   }
 }
 
-/** Place trees along grid edges and in clusters. */
+/** Place trees as dense clusters. */
 function placeTrees(
   grid: Cell[][],
   width: number,
@@ -132,22 +132,28 @@ function placeTrees(
   config: CourseConfig,
   rng: PRNG,
 ): void {
-  // Edge trees
-  const edgeDepth = rng.int(1, 2);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const isEdge =
-        x < edgeDepth || x >= width - edgeDepth || y < edgeDepth || y >= height - edgeDepth;
-      if (isEdge && getTerrain(grid, width, height, x, y) === Terrain.Rough) {
-        if (rng.chance(0.7)) {
-          setTerrain(grid, width, height, x, y, Terrain.Trees);
+  // Minimal edge trees - only in corners, not a full border
+  const corners = [
+    { x: 0, y: 0 },
+    { x: width - 1, y: 0 },
+    { x: 0, y: height - 1 },
+    { x: width - 1, y: height - 1 },
+  ];
+  for (const corner of corners) {
+    if (!rng.chance(0.5)) continue;
+    for (let dy = 0; dy < rng.int(2, 3); dy++) {
+      for (let dx = 0; dx < rng.int(2, 3); dx++) {
+        const tx = corner.x + (corner.x === 0 ? dx : -dx);
+        const ty = corner.y + (corner.y === 0 ? dy : -dy);
+        if (getTerrain(grid, width, height, tx, ty) === Terrain.Rough) {
+          setTerrain(grid, width, height, tx, ty, Terrain.Trees);
         }
       }
     }
   }
 
-  // Clusters in rough areas (not adjacent to fairway)
-  const clusterCount = Math.floor(config.treeDensity * 10);
+  // Dense clusters in rough areas (not adjacent to fairway)
+  const clusterCount = Math.max(1, Math.floor(config.treeDensity * 8));
   for (let c = 0; c < clusterCount; c++) {
     const cx = rng.int(2, width - 3);
     const cy = rng.int(2, height - 3);
@@ -156,30 +162,40 @@ function placeTrees(
     const nearSpine = spine.some((p) => Math.abs(p.x - cx) <= 2 && Math.abs(p.y - cy) <= 2);
     if (nearSpine) continue;
 
-    // Place a cluster
-    const clusterSize = rng.int(2, 5);
-    for (let i = 0; i < clusterSize; i++) {
-      const tx = cx + rng.int(-2, 2);
-      const ty = cy + rng.int(-2, 2);
-      if (getTerrain(grid, width, height, tx, ty) === Terrain.Rough) {
-        // Check not adjacent to fairway
-        let adjFairway = false;
-        for (let dy = -1; dy <= 1; dy++) {
-          for (let dx = -1; dx <= 1; dx++) {
-            if (getTerrain(grid, width, height, tx + dx, ty + dy) === Terrain.Fairway) {
-              adjFairway = true;
+    // Place a solid 2x2 or 3x2 block of trees
+    const tw = rng.int(2, 3);
+    const th = rng.int(2, 3);
+    let canPlace = true;
+    // Check all cells are rough and not adjacent to fairway
+    for (let dy = 0; dy < th && canPlace; dy++) {
+      for (let dx = 0; dx < tw && canPlace; dx++) {
+        const tx = cx + dx;
+        const ty = cy + dy;
+        if (getTerrain(grid, width, height, tx, ty) !== Terrain.Rough) {
+          canPlace = false;
+        }
+        // Check adjacency to fairway
+        for (let ay = -1; ay <= 1; ay++) {
+          for (let ax = -1; ax <= 1; ax++) {
+            if (getTerrain(grid, width, height, tx + ax, ty + ay) === Terrain.Fairway) {
+              canPlace = false;
             }
           }
         }
-        if (!adjFairway) {
-          setTerrain(grid, width, height, tx, ty, Terrain.Trees);
-        }
+      }
+    }
+
+    if (!canPlace) continue;
+
+    for (let dy = 0; dy < th; dy++) {
+      for (let dx = 0; dx < tw; dx++) {
+        setTerrain(grid, width, height, cx + dx, cy + dy, Terrain.Trees);
       }
     }
   }
 }
 
-/** Place sand traps near the green and along the fairway. */
+/** Place sand traps as solid rectangular blocks. */
 function placeSandTraps(
   grid: Cell[][],
   width: number,
@@ -215,18 +231,21 @@ function placeSandTraps(
 
     // Don't place too close to other traps
     const tooClose = placed.some(
-      (p) => Math.abs(p.x - targetPos.x) <= 2 && Math.abs(p.y - targetPos.y) <= 2,
+      (p) => Math.abs(p.x - targetPos.x) <= 3 && Math.abs(p.y - targetPos.y) <= 3,
     );
     if (tooClose) continue;
 
-    // Place a cluster of sand cells
-    const clusterSize = rng.int(2, 4);
-    for (let j = 0; j < clusterSize; j++) {
-      const sx = targetPos.x + rng.int(-1, 1);
-      const sy = targetPos.y + rng.int(-1, 1);
-      const terrain = getTerrain(grid, width, height, sx, sy);
-      if (terrain === Terrain.Rough || terrain === Terrain.Fairway) {
-        setTerrain(grid, width, height, sx, sy, Terrain.Sand);
+    // Place a solid rectangular block (2x2 or 3x2)
+    const bw = rng.int(2, 3);
+    const bh = 2;
+    for (let dy = 0; dy < bh; dy++) {
+      for (let dx = 0; dx < bw; dx++) {
+        const sx = targetPos.x + dx;
+        const sy = targetPos.y + dy;
+        const terrain = getTerrain(grid, width, height, sx, sy);
+        if (terrain === Terrain.Rough || terrain === Terrain.Fairway) {
+          setTerrain(grid, width, height, sx, sy, Terrain.Sand);
+        }
       }
     }
 
@@ -234,7 +253,7 @@ function placeSandTraps(
   }
 }
 
-/** Place a water hazard (pond or stream). */
+/** Place a water hazard as a solid block or continuous stream. */
 function placeWater(
   grid: Cell[][],
   width: number,
@@ -245,39 +264,39 @@ function placeWater(
   const isPond = rng.chance(0.6);
 
   if (isPond) {
-    // Pond near the middle of the fairway
+    // Solid rectangular pond (3x2 or 3x3)
     const spineIdx = rng.int(Math.floor(spine.length * 0.3), Math.floor(spine.length * 0.6));
     const center = spine[spineIdx] ?? spine[Math.floor(spine.length / 2)];
     if (!center) return;
     const side = rng.chance(0.5) ? 1 : -1;
-    const pondCenter: Position = {
-      x: center.x + side * rng.int(2, 3),
-      y: center.y,
-    };
+    const pondX = center.x + side * rng.int(2, 3);
+    const pondY = center.y - 1;
 
-    const pondSize = rng.int(4, 8);
-    for (let i = 0; i < pondSize; i++) {
-      const px = pondCenter.x + rng.int(-2, 2);
-      const py = pondCenter.y + rng.int(-1, 1);
-      const terrain = getTerrain(grid, width, height, px, py);
-      if (terrain === Terrain.Rough) {
-        setTerrain(grid, width, height, px, py, Terrain.Water);
+    const pw = rng.int(3, 4);
+    const ph = rng.int(2, 3);
+    for (let dy = 0; dy < ph; dy++) {
+      for (let dx = 0; dx < pw; dx++) {
+        const wx = pondX + dx;
+        const wy = pondY + dy;
+        const terrain = getTerrain(grid, width, height, wx, wy);
+        if (terrain === Terrain.Rough) {
+          setTerrain(grid, width, height, wx, wy, Terrain.Water);
+        }
       }
     }
   } else {
-    // Stream crossing the fairway
+    // Stream crossing the fairway - continuous horizontal line
     const spineIdx = rng.int(Math.floor(spine.length * 0.3), Math.floor(spine.length * 0.6));
     const crossPoint = spine[spineIdx] ?? spine[Math.floor(spine.length / 2)];
     if (!crossPoint) return;
 
-    // Draw a thin horizontal or near-horizontal line
+    // Continuous line across the fairway width
+    const streamY = crossPoint.y;
     for (let dx = -3; dx <= 3; dx++) {
-      const dy = rng.int(-1, 0);
       const wx = crossPoint.x + dx;
-      const wy = crossPoint.y + dy;
-      const terrain = getTerrain(grid, width, height, wx, wy);
+      const terrain = getTerrain(grid, width, height, wx, streamY);
       if (terrain === Terrain.Rough || terrain === Terrain.Fairway) {
-        setTerrain(grid, width, height, wx, wy, Terrain.Water);
+        setTerrain(grid, width, height, wx, streamY, Terrain.Water);
       }
     }
   }
