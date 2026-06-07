@@ -133,7 +133,7 @@ function placeTrees(
   rng: PRNG,
 ): void {
   // Edge trees
-  const edgeDepth = rng.int(2, 4);
+  const edgeDepth = rng.int(1, 2);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const isEdge =
@@ -149,8 +149,8 @@ function placeTrees(
   // Clusters in rough areas (not adjacent to fairway)
   const clusterCount = Math.floor(config.treeDensity * 10);
   for (let c = 0; c < clusterCount; c++) {
-    const cx = rng.int(3, width - 4);
-    const cy = rng.int(3, height - 4);
+    const cx = rng.int(2, width - 3);
+    const cy = rng.int(2, height - 3);
 
     // Don't place near spine
     const nearSpine = spine.some((p) => Math.abs(p.x - cx) <= 2 && Math.abs(p.y - cy) <= 2);
@@ -198,8 +198,8 @@ function placeSandTraps(
       // Greenside bunker - near the hole
       const angle = rng.next() * Math.PI * 2;
       targetPos = {
-        x: hole.x + Math.round(Math.cos(angle) * 3),
-        y: hole.y + Math.round(Math.sin(angle) * 3),
+        x: hole.x + Math.round(Math.cos(angle) * 2),
+        y: hole.y + Math.round(Math.sin(angle) * 2),
       };
     } else {
       // Fairway bunker - along the middle of the spine
@@ -208,7 +208,7 @@ function placeSandTraps(
       if (!spinePos) continue;
       const side = rng.chance(0.5) ? 1 : -1;
       targetPos = {
-        x: spinePos.x + side * rng.int(2, 4),
+        x: spinePos.x + side * rng.int(1, 3),
         y: spinePos.y + rng.int(-1, 1),
       };
     }
@@ -251,7 +251,7 @@ function placeWater(
     if (!center) return;
     const side = rng.chance(0.5) ? 1 : -1;
     const pondCenter: Position = {
-      x: center.x + side * rng.int(3, 5),
+      x: center.x + side * rng.int(2, 3),
       y: center.y,
     };
 
@@ -271,7 +271,7 @@ function placeWater(
     if (!crossPoint) return;
 
     // Draw a thin horizontal or near-horizontal line
-    for (let dx = -4; dx <= 4; dx++) {
+    for (let dx = -3; dx <= 3; dx++) {
       const dy = rng.int(-1, 0);
       const wx = crossPoint.x + dx;
       const wy = crossPoint.y + dy;
@@ -393,11 +393,11 @@ export function generateCourse(
     const baseX = tee.x + (hole.x - tee.x) * t;
     const baseY = tee.y + (hole.y - tee.y) * t;
     // Add some random offset for curves/doglegs
-    const offsetX = rng.int(-4, 4);
-    const offsetY = rng.int(-2, 2);
+    const offsetX = rng.int(-2, 2);
+    const offsetY = rng.int(-1, 1);
     points.push({
-      x: Math.max(3, Math.min(width - 4, Math.round(baseX + offsetX))),
-      y: Math.max(3, Math.min(height - 4, Math.round(baseY + offsetY))),
+      x: Math.max(2, Math.min(width - 3, Math.round(baseX + offsetX))),
+      y: Math.max(2, Math.min(height - 3, Math.round(baseY + offsetY))),
     });
   }
 

@@ -56,17 +56,17 @@ export interface CourseConfig {
 }
 
 export const DEFAULT_COURSE_CONFIG: CourseConfig = {
-  fairwayWidthMin: 3,
-  fairwayWidthMax: 5,
-  controlPoints: 2,
-  treeDensity: 0.3,
-  sandTrapCount: 3,
+  fairwayWidthMin: 2,
+  fairwayWidthMax: 4,
+  controlPoints: 1,
+  treeDensity: 0.2,
+  sandTrapCount: 2,
   waterProbability: 0.5,
-  slopeCount: 5,
+  slopeCount: 3,
 };
 
-export const GRID_WIDTH = 20;
-export const GRID_HEIGHT = 30;
+export const GRID_WIDTH = 12;
+export const GRID_HEIGHT = 18;
 export const PAR = 6;
 
 // ---- Events ----
