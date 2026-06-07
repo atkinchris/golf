@@ -40,7 +40,7 @@ export function App() {
   const state = useMemo(() => reduce(events), [events]);
 
   // Animation
-  const { animatedBall, isAnimating } = useAnimation(state.ball);
+  const { animatedBall, isAnimating } = useAnimation(state.ball, state.course?.seed ?? null);
 
   // Auto-save on every event change
   useEffect(() => {

@@ -10,10 +10,12 @@ interface AnimationState {
 
 /**
  * Interpolates ball position between state changes.
+ * Pass gameKey (e.g. course seed) to suppress animation on game reset.
  * Returns the current animated position (or null if idle).
  */
 export function useAnimation(
   ballPosition: Position,
+  gameKey: string | null,
   duration = 400,
 ): {
   animatedBall: Position | null;
@@ -21,7 +23,8 @@ export function useAnimation(
 } {
   const [animatedBall, setAnimatedBall] = useState<Position | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const prevBallRef = useRef<Position>(ballPosition);
+  const prevBallRef = useRef<Position | null>(null);
+  const prevGameKeyRef = useRef<string | null>(null);
   const animRef = useRef<AnimationState | null>(null);
   const rafRef = useRef<number>(0);
 
@@ -52,7 +55,19 @@ export function useAnimation(
   }, []);
 
   useEffect(() => {
+    const gameChanged = gameKey !== prevGameKeyRef.current;
+    prevGameKeyRef.current = gameKey;
+
     const prev = prevBallRef.current;
+    if (prev === null || gameChanged) {
+      // First position, or game reset - place ball without animation
+      cancelAnimationFrame(rafRef.current);
+      animRef.current = null;
+      setAnimatedBall(null);
+      setIsAnimating(false);
+      prevBallRef.current = ballPosition;
+      return;
+    }
     if (prev.x !== ballPosition.x || prev.y !== ballPosition.y) {
       // Ball moved - start animation
       cancelAnimationFrame(rafRef.current);
@@ -66,7 +81,7 @@ export function useAnimation(
       rafRef.current = requestAnimationFrame(animate);
     }
     prevBallRef.current = ballPosition;
-  }, [ballPosition, duration, animate]);
+  }, [ballPosition, gameKey, duration, animate]);
 
   useEffect(() => {
     return () => cancelAnimationFrame(rafRef.current);
