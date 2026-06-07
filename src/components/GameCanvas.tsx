@@ -16,7 +16,7 @@ const DOT_COLOUR_DARK = "#6a6a6a";
 const GRID_LINE_COLOUR = "#5a5a5a";
 const HATCH_COLOUR = "#c8c8c4";
 const TREE_COLOUR = "#1a1a1a";
-const SLOPE_ARROW_COLOUR = "#00000044";
+const SLOPE_ARROW_COLOUR = "#3a3a3a";
 const BALL_COLOUR = "#ffffff";
 const BALL_OUTLINE = "#1a1a1a";
 const TEE_COLOUR = "#1a1a1a";
@@ -31,15 +31,16 @@ interface Props {
   animatedBall: Position | null;
 }
 
-const DIRECTION_ARROWS: Record<string, string> = {
-  N: "\u2191",
-  NE: "\u2197",
-  E: "\u2192",
-  SE: "\u2198",
-  S: "\u2193",
-  SW: "\u2199",
-  W: "\u2190",
-  NW: "\u2196",
+/** Rotation angle in radians for each slope direction (0 = pointing up/North). */
+const DIRECTION_ANGLES: Record<string, number> = {
+  N:  0,
+  NE: Math.PI * 0.25,
+  E:  Math.PI * 0.5,
+  SE: Math.PI * 0.75,
+  S:  Math.PI,
+  SW: Math.PI * 1.25,
+  W:  Math.PI * 1.5,
+  NW: Math.PI * 1.75,
 };
 
 /** Returns true if the cell at (x, y) is a non-rough filled terrain (not trees). */
@@ -245,20 +246,42 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
     }
   }
 
-  // Slope arrows
+  // Slope arrows (geometric: shaft + arrowhead, rotated per direction)
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const cell = grid[y]?.[x];
       if (!cell?.slope) continue;
+      const angle = DIRECTION_ANGLES[cell.slope];
+      if (angle === undefined) continue;
+
+      const cx = x * cellSize + cellSize / 2;
+      const cy = y * cellSize + cellSize / 2;
+      const shaftW = cellSize * 0.12;
+      const shaftLen = cellSize * 0.22;
+      const headW = cellSize * 0.28;
+      const headLen = cellSize * 0.22;
+      // Total arrow length: shaftLen + headLen, centred on the cell.
+      const totalLen = shaftLen + headLen;
+      const tipY = -totalLen / 2;          // tip (towards N before rotation)
+      const shaftBaseY = tipY + headLen;   // base of arrowhead / top of shaft
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angle);
       ctx.fillStyle = SLOPE_ARROW_COLOUR;
-      ctx.font = `${cellSize * 0.4}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        DIRECTION_ARROWS[cell.slope] ?? "",
-        x * cellSize + cellSize / 2,
-        y * cellSize + cellSize / 2,
-      );
+
+      // Arrowhead triangle
+      ctx.beginPath();
+      ctx.moveTo(0, tipY);
+      ctx.lineTo(-headW / 2, shaftBaseY);
+      ctx.lineTo(headW / 2, shaftBaseY);
+      ctx.closePath();
+      ctx.fill();
+
+      // Shaft rectangle
+      ctx.fillRect(-shaftW / 2, shaftBaseY, shaftW, shaftLen);
+
+      ctx.restore();
     }
   }
 
