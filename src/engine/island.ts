@@ -242,7 +242,7 @@ export function placeSlopes(
     const y = rng.int(1, height - 2);
     const terrain = getTerrain(grid, width, height, x, y);
 
-    if (terrain !== Terrain.Rough && terrain !== Terrain.Fairway) continue;
+    if (terrain !== Terrain.Fairway) continue;
 
     const validDirs: Direction[] = [];
     for (const dir of DIRECTIONS) {
