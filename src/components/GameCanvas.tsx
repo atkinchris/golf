@@ -4,18 +4,19 @@ import { Terrain } from "../engine/types";
 import "./GameCanvas.css";
 
 const TERRAIN_COLOURS: Record<Terrain, string> = {
-  [Terrain.Rough]: "#f5f5f3",
-  [Terrain.Fairway]: "#d4d4d0",
-  [Terrain.Sand]: "#e8e8e4",
-  [Terrain.Water]: "#4a4a4a",
-  [Terrain.Trees]: "#f5f5f3",
+  [Terrain.Rough]: "#f0f0eb",
+  [Terrain.Fairway]: "#87ab78",
+  [Terrain.Sand]: "#b5993c",
+  [Terrain.Water]: "#5b8fcc",
+  [Terrain.Trees]: "#f0f0eb",
 };
-
-const DOT_COLOUR_LIGHT = "#c0c0c0";
-const DOT_COLOUR_DARK = "#6a6a6a";
-const GRID_LINE_COLOUR = "#5a5a5a";
-const HATCH_COLOUR = "#c8c8c4";
-const TREE_COLOUR = "#1a1a1a";
+const DOT_COLOUR_ROUGH = "#b8b8b2";
+const DOT_COLOUR_FAIRWAY = "#5e8050";
+const DOT_COLOUR_SAND = "#8a7028";
+const DOT_COLOUR_WATER = "#3a6aaa";
+const GRID_LINE_COLOUR = "#3a6aaa";
+const HATCH_COLOUR = "#8a7028";
+const TREE_COLOUR = "#3a5e2a";
 const SLOPE_ARROW_COLOUR = "#3a3a3a";
 const BALL_COLOUR = "#ffffff";
 const BALL_OUTLINE = "#1a1a1a";
@@ -116,7 +117,7 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
   // Dot grid on rough
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      ctx.fillStyle = DOT_COLOUR_LIGHT;
+      ctx.fillStyle = DOT_COLOUR_ROUGH;
       ctx.beginPath();
       ctx.arc(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 3, 0, Math.PI * 2);
       ctx.fill();
@@ -133,7 +134,7 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
       ctx.fillStyle = TERRAIN_COLOURS[Terrain.Fairway];
       ctx.fill();
       // Dot
-      ctx.fillStyle = DOT_COLOUR_LIGHT;
+      ctx.fillStyle = DOT_COLOUR_FAIRWAY;
       ctx.beginPath();
       ctx.arc(px + cellSize / 2, py + cellSize / 2, 3, 0, Math.PI * 2);
       ctx.fill();
@@ -166,7 +167,7 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
       }
       ctx.restore();
       // Dot
-      ctx.fillStyle = DOT_COLOUR_LIGHT;
+      ctx.fillStyle = DOT_COLOUR_SAND;
       ctx.beginPath();
       ctx.arc(px + cellSize / 2, py + cellSize / 2, 3, 0, Math.PI * 2);
       ctx.fill();
@@ -221,7 +222,7 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
       }
       ctx.restore();
       // Light dot on water
-      ctx.fillStyle = DOT_COLOUR_DARK;
+      ctx.fillStyle = DOT_COLOUR_WATER;
       ctx.beginPath();
       ctx.arc(px + cellSize / 2, py + cellSize / 2, 3, 0, Math.PI * 2);
       ctx.fill();
