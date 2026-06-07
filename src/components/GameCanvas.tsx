@@ -187,8 +187,10 @@ export function GameCanvas({ state, animatedBall }: Props) {
       height={state.course.height * CELL_SIZE}
       style={{
         width: "100%",
+        maxWidth: "100%",
         height: "auto",
         imageRendering: "pixelated",
+        display: "block",
       }}
     />
   );
