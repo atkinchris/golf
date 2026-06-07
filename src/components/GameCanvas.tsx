@@ -18,10 +18,10 @@ const HATCH_COLOUR = "#c8c8c4";
 const TREE_COLOUR = "#1a1a1a";
 const SLOPE_ARROW_COLOUR = "#00000044";
 const BALL_COLOUR = "#ffffff";
-const BALL_OUTLINE = "#333333";
+const BALL_OUTLINE = "#1a1a1a";
 const TEE_COLOUR = "#1a1a1a";
 const HOLE_COLOUR = "#1a1a1a";
-const PATH_COLOUR = "#ffffff88";
+const PATH_COLOUR = "#1a1a1a66";
 const CORNER_RADIUS = 24;
 const CELL_SIZE = 64;
 
