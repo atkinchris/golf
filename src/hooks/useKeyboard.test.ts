@@ -1,11 +1,12 @@
 import { renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Direction } from "../engine/types";
 import { Phase } from "../engine/types";
 import { useKeyboard } from "./useKeyboard";
 
 describe("useKeyboard", () => {
-  let onRoll: ReturnType<typeof vi.fn>;
-  let onDirection: ReturnType<typeof vi.fn>;
+  let onRoll: () => void;
+  let onDirection: (dir: Direction) => void;
 
   beforeEach(() => {
     onRoll = vi.fn();
