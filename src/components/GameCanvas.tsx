@@ -291,7 +291,6 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
       ctx.restore();
     }
   }
-
 }
 
 function drawTeeAndHole(
@@ -339,7 +338,7 @@ function drawShotPath(
   // in sequence: from[0], to[0]/from[1], to[1]/from[2], ... to[n].
   const pts: { x: number; y: number }[] = [];
   for (let i = 0; i < shotHistory.length; i++) {
-    const shot = shotHistory[i];
+    const shot = shotHistory[i]!;
     const fx = shot.from.x * cellSize + cellSize / 2;
     const fy = shot.from.y * cellSize + cellSize / 2;
     if (i === 0) pts.push({ x: fx, y: fy });
@@ -356,14 +355,14 @@ function drawShotPath(
   ctx.lineDashOffset = 0;
 
   ctx.beginPath();
-  ctx.moveTo(pts[0].x, pts[0].y);
+  ctx.moveTo(pts[0]!.x, pts[0]!.y);
 
   for (let i = 1; i < pts.length - 1; i++) {
-    ctx.arcTo(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y, cornerRadius);
+    ctx.arcTo(pts[i]!.x, pts[i]!.y, pts[i + 1]!.x, pts[i + 1]!.y, cornerRadius);
   }
 
   // Draw to the final point
-  ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+  ctx.lineTo(pts[pts.length - 1]!.x, pts[pts.length - 1]!.y);
 
   ctx.stroke();
 }
