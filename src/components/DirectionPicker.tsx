@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { DIRECTIONS, type Direction, type GameState } from "../engine/types";
 import { validateMove } from "../engine/validation";
+import "./DirectionPicker.css";
 
 interface Props {
   state: GameState;
@@ -45,18 +46,18 @@ export function DirectionPicker({ state, onDirection, disabled }: Props) {
   }, [state.course, state.ball, state.currentRoll]);
 
   return (
-    <div style={styles.grid}>
+    <div className="direction-grid">
       {GRID_LAYOUT.map((row, rowIdx) => (
-        <div key={ROW_KEYS[rowIdx]} style={styles.row}>
+        <div key={ROW_KEYS[rowIdx]} className="direction-row">
           {row.map((dir) => {
             if (dir === null) {
               // Centre cell - show roll value
               return (
-                <div key="centre" style={styles.centerCell}>
+                <div key="centre" className="direction-centre">
                   {state.currentRoll !== null ? (
-                    <span style={styles.rollValue}>{state.currentRoll}</span>
+                    <span>{state.currentRoll}</span>
                   ) : (
-                    <span style={styles.dot}>●</span>
+                    <span className="direction-dot">●</span>
                   )}
                 </div>
               );
@@ -69,11 +70,7 @@ export function DirectionPicker({ state, onDirection, disabled }: Props) {
               <button
                 type="button"
                 key={dir}
-                style={{
-                  ...styles.arrowButton,
-                  opacity: isDisabled ? 0.25 : 1,
-                  cursor: isDisabled ? "default" : "pointer",
-                }}
+                className="arrow-button"
                 disabled={isDisabled}
                 onClick={() => onDirection(dir)}
                 aria-label={`Hit ${dir}`}
@@ -87,51 +84,3 @@ export function DirectionPicker({ state, onDirection, disabled }: Props) {
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  grid: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "3px",
-    alignItems: "center",
-  },
-  row: {
-    display: "flex",
-    gap: "3px",
-  },
-  arrowButton: {
-    width: "44px",
-    height: "44px",
-    fontSize: "20px",
-    border: "2px solid #444",
-    borderRadius: "8px",
-    background: "#2a2a3e",
-    color: "#e0e0e0",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    touchAction: "manipulation",
-    WebkitTapHighlightColor: "transparent",
-    transition: "opacity 0.15s",
-  },
-  centerCell: {
-    width: "44px",
-    height: "44px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    border: "2px solid #333",
-    borderRadius: "8px",
-    background: "#1a1a2e",
-    color: "#ffd700",
-    fontSize: "18px",
-    fontWeight: "bold",
-  },
-  rollValue: {
-    fontSize: "18px",
-  },
-  dot: {
-    color: "#555",
-    fontSize: "14px",
-  },
-};

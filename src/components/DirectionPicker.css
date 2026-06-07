@@ -1,0 +1,52 @@
+.direction-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+}
+
+.direction-row {
+  display: flex;
+  gap: 3px;
+}
+
+.arrow-button {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  border: 2px solid #444;
+  border-radius: 8px;
+  background: #2a2a3e;
+  color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+
+.arrow-button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.direction-centre {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #1a1a2e;
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.direction-dot {
+  color: #555;
+  font-size: 14px;
+}
