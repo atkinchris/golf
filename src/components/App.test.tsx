@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateSeed, getSeedFromUrl } from "./App";
+import { generateSeed, getSeedFromUrl, writeSeedToUrl } from "./App";
 
 describe("generateSeed", () => {
   it("produces a three-word hyphenated string", () => {
@@ -25,5 +25,17 @@ describe("getSeedFromUrl", () => {
   it("returns null when no seed param is present", () => {
     expect(getSeedFromUrl("")).toBeNull();
     expect(getSeedFromUrl("?foo=bar")).toBeNull();
+  });
+});
+
+describe("writeSeedToUrl", () => {
+  it("sets ?seed= in the URL using replaceState", () => {
+    writeSeedToUrl("brave-copper-wolf", true);
+    expect(window.location.search).toContain("seed=brave-copper-wolf");
+  });
+
+  it("sets ?seed= in the URL using pushState", () => {
+    writeSeedToUrl("happy-red-fox", false);
+    expect(window.location.search).toContain("seed=happy-red-fox");
   });
 });
