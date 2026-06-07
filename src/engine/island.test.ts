@@ -4,10 +4,7 @@ import {
   placeIsland,
   validateWaterInvariant,
   placeTreeCluster,
-  placeSandPatch,
-  placeSlopes,
   isReachable,
-  getTerrain,
 } from "./island";
 import { PRNG } from "./prng";
 import { Terrain } from "./types";

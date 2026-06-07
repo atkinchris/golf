@@ -1,6 +1,6 @@
 import { placeIsland, placeSandPatch, placeTreeCluster, placeWaterBlock } from "./island";
 import type { PRNG } from "./prng";
-import type { Cell, CourseConfig, Position } from "./types";
+import { type Cell, type CourseConfig, type Position, Terrain } from "./types";
 
 /**
  * Island Hop: 3-4 disconnected fairway islands staggered left-right across
@@ -177,8 +177,8 @@ export function splitDecision(
         const by = barrierY + dy;
         if (bx >= 0 && bx < width && by >= 0 && by < height) {
           const cell = grid[by]?.[bx];
-          if (cell && cell.terrain !== "fairway") {
-            cell.terrain = "trees";
+          if (cell && cell.terrain !== Terrain.Fairway) {
+            cell.terrain = Terrain.Trees;
           }
         }
       }
