@@ -120,6 +120,12 @@ export function App() {
     setEvents([{ type: "GameStarted", seed, gridWidth: GRID_WIDTH, gridHeight: GRID_HEIGHT }]);
   }, []);
 
+  const handlePlayAgain = useCallback(() => {
+    if (!state.course) return;
+    const { seed } = state.course;
+    setEvents([{ type: "GameStarted", seed, gridWidth: GRID_WIDTH, gridHeight: GRID_HEIGHT }]);
+  }, [state.course]);
+
   if (!initialised) return null;
 
   return (
@@ -135,9 +141,14 @@ export function App() {
               Holed out in <strong>{state.stroke}</strong> strokes!
               {state.stroke <= state.par && " 🏆"}
             </div>
-            <button type="button" className="new-game-button" onClick={handleNewGame}>
-              New Game
-            </button>
+            <div className="game-over-buttons">
+              <button type="button" className="new-game-button" onClick={handlePlayAgain}>
+                Replay Course
+              </button>
+              <button type="button" className="new-game-button" onClick={handleNewGame}>
+                New Course
+              </button>
+            </div>
           </div>
         ) : (
           <div className="controls-row">

@@ -385,9 +385,12 @@ export function GameCanvas({ state, animatedBall }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const courseImageRef = useRef<ImageBitmap | null>(null);
   const lastCourseRef = useRef<Course | null>(null);
+  const drawRef = useRef<(() => void) | null>(null);
 
   // Cache the course render as an ImageBitmap
   const renderCourseToCache = useCallback((course: Course) => {
+    // Clear stale bitmap immediately so draw() falls back to synchronous rendering
+    courseImageRef.current = null;
     const offscreen = new OffscreenCanvas(course.width * CELL_SIZE, course.height * CELL_SIZE);
     const ctx = offscreen.getContext("2d") as unknown as CanvasRenderingContext2D | null;
     if (!ctx) return;
@@ -395,6 +398,8 @@ export function GameCanvas({ state, animatedBall }: Props) {
     createImageBitmap(offscreen).then((bitmap) => {
       courseImageRef.current = bitmap;
       lastCourseRef.current = course;
+      // Redraw now that the cached bitmap is ready
+      drawRef.current?.();
     });
   }, []);
 
@@ -432,6 +437,11 @@ export function GameCanvas({ state, animatedBall }: Props) {
       drawBall(ctx, ballPos, CELL_SIZE);
     }
   }, [state, animatedBall, renderCourseToCache]);
+
+  // Keep drawRef current so renderCourseToCache can call it after the bitmap resolves
+  useEffect(() => {
+    drawRef.current = draw;
+  });
 
   useEffect(() => {
     draw();
