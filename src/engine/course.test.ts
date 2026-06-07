@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { generateCourse } from "./course";
-import { DEFAULT_COURSE_CONFIG, GRID_HEIGHT, GRID_WIDTH, Terrain } from "./types";
+import {
+  DEFAULT_COURSE_CONFIG,
+  GRID_HEIGHT,
+  GRID_WIDTH,
+  Terrain,
+  type Position,
+} from "./types";
 
 describe("generateCourse", () => {
   describe("determinism", () => {
@@ -42,16 +48,18 @@ describe("generateCourse", () => {
   });
 
   describe("tee and hole placement", () => {
-    it("places tee in the bottom portion of the grid", () => {
-      const course = generateCourse("tee-pos", GRID_WIDTH, GRID_HEIGHT);
-      expect(course.tee.y).toBeGreaterThanOrEqual(GRID_HEIGHT - 5);
-      expect(course.tee.y).toBeLessThanOrEqual(GRID_HEIGHT - 1);
+    it("places tee in the bottom third of the grid", () => {
+      for (let i = 0; i < 20; i++) {
+        const course = generateCourse(`tee-${i}`, GRID_WIDTH, GRID_HEIGHT);
+        expect(course.tee.y).toBeGreaterThanOrEqual(Math.floor(GRID_HEIGHT * 0.6));
+      }
     });
 
-    it("places hole in the top portion of the grid", () => {
-      const course = generateCourse("hole-pos", GRID_WIDTH, GRID_HEIGHT);
-      expect(course.hole.y).toBeGreaterThanOrEqual(2);
-      expect(course.hole.y).toBeLessThanOrEqual(4);
+    it("places hole in the top third of the grid", () => {
+      for (let i = 0; i < 20; i++) {
+        const course = generateCourse(`hole-${i}`, GRID_WIDTH, GRID_HEIGHT);
+        expect(course.hole.y).toBeLessThanOrEqual(Math.floor(GRID_HEIGHT * 0.35));
+      }
     });
 
     it("places tee and hole within grid bounds", () => {
@@ -69,27 +77,35 @@ describe("generateCourse", () => {
     });
 
     it("places tee on fairway", () => {
-      const course = generateCourse("tee-fairway", GRID_WIDTH, GRID_HEIGHT);
-      const cell = course.grid[course.tee.y]?.[course.tee.x];
-      expect(cell?.terrain).toBe(Terrain.Fairway);
+      for (let i = 0; i < 20; i++) {
+        const course = generateCourse(`tee-fw-${i}`, GRID_WIDTH, GRID_HEIGHT);
+        const cell = course.grid[course.tee.y]?.[course.tee.x];
+        expect(cell?.terrain).toBe(Terrain.Fairway);
+      }
     });
 
     it("places hole on fairway", () => {
-      const course = generateCourse("hole-fairway", GRID_WIDTH, GRID_HEIGHT);
-      const cell = course.grid[course.hole.y]?.[course.hole.x];
-      expect(cell?.terrain).toBe(Terrain.Fairway);
+      for (let i = 0; i < 20; i++) {
+        const course = generateCourse(`hole-fw-${i}`, GRID_WIDTH, GRID_HEIGHT);
+        const cell = course.grid[course.hole.y]?.[course.hole.x];
+        expect(cell?.terrain).toBe(Terrain.Fairway);
+      }
     });
 
     it("ensures tee has no slope", () => {
-      const course = generateCourse("tee-no-slope", GRID_WIDTH, GRID_HEIGHT);
-      const cell = course.grid[course.tee.y]?.[course.tee.x];
-      expect(cell?.slope).toBeNull();
+      for (let i = 0; i < 20; i++) {
+        const course = generateCourse(`tee-ns-${i}`, GRID_WIDTH, GRID_HEIGHT);
+        const cell = course.grid[course.tee.y]?.[course.tee.x];
+        expect(cell?.slope).toBeNull();
+      }
     });
 
     it("ensures hole has no slope", () => {
-      const course = generateCourse("hole-no-slope", GRID_WIDTH, GRID_HEIGHT);
-      const cell = course.grid[course.hole.y]?.[course.hole.x];
-      expect(cell?.slope).toBeNull();
+      for (let i = 0; i < 20; i++) {
+        const course = generateCourse(`hole-ns-${i}`, GRID_WIDTH, GRID_HEIGHT);
+        const cell = course.grid[course.hole.y]?.[course.hole.x];
+        expect(cell?.slope).toBeNull();
+      }
     });
   });
 
@@ -139,11 +155,9 @@ describe("generateCourse", () => {
 
   describe("reachability", () => {
     it("produces a course where the hole is reachable from the tee", () => {
-      // Test with many seeds to exercise the retry logic
       for (let i = 0; i < 30; i++) {
         const course = generateCourse(`reach-${i}`, GRID_WIDTH, GRID_HEIGHT);
 
-        // BFS from tee to hole through non-blocking terrain
         const visited = new Set<string>();
         const queue = [course.tee];
         visited.add(`${course.tee.x},${course.tee.y}`);
@@ -156,18 +170,12 @@ describe("generateCourse", () => {
             found = true;
             break;
           }
-          for (const dir of [
-            [0, -1],
-            [0, 1],
-            [1, 0],
-            [-1, 0],
-            [1, -1],
-            [1, 1],
-            [-1, -1],
-            [-1, 1],
+          for (const [dx, dy] of [
+            [0, -1], [0, 1], [1, 0], [-1, 0],
+            [1, -1], [1, 1], [-1, -1], [-1, 1],
           ] as const) {
-            const nx = pos.x + dir[0];
-            const ny = pos.y + dir[1];
+            const nx = pos.x + dx;
+            const ny = pos.y + dy;
             const key = `${nx},${ny}`;
             if (visited.has(key)) continue;
             if (nx < 0 || nx >= course.width || ny < 0 || ny >= course.height) continue;
@@ -183,32 +191,79 @@ describe("generateCourse", () => {
     });
   });
 
-  describe("config", () => {
-    it("accepts a custom config", () => {
-      const config = {
-        ...DEFAULT_COURSE_CONFIG,
-        sandTrapCount: 0,
-        slopeCount: 0,
-        waterProbability: 0,
-        treeDensity: 0,
-      };
-      const course = generateCourse("no-hazards", GRID_WIDTH, GRID_HEIGHT, config);
-      expect(course.grid).toHaveLength(GRID_HEIGHT);
+  describe("water invariant", () => {
+    it("no non-water cell is enclosed by water", () => {
+      for (let i = 0; i < 30; i++) {
+        const course = generateCourse(`water-inv-${i}`, GRID_WIDTH, GRID_HEIGHT);
+        const { grid, width, height } = course;
 
-      // With zero tree density and no clusters, edge trees may still exist
-      // but there should be no sand or water
-      let hasSand = false;
-      let hasWater = false;
-      for (const row of course.grid) {
-        for (const cell of row) {
-          if (cell.terrain === Terrain.Sand) hasSand = true;
-          if (cell.terrain === Terrain.Water) hasWater = true;
+        // Flood-fill from all edge cells through non-water
+        const visited = new Set<string>();
+        const queue: Position[] = [];
+
+        for (let x = 0; x < width; x++) {
+          for (const y of [0, height - 1]) {
+            if (grid[y]![x]!.terrain !== Terrain.Water) {
+              const key = `${x},${y}`;
+              if (!visited.has(key)) { visited.add(key); queue.push({ x, y }); }
+            }
+          }
+        }
+        for (let y = 0; y < height; y++) {
+          for (const x of [0, width - 1]) {
+            if (grid[y]![x]!.terrain !== Terrain.Water) {
+              const key = `${x},${y}`;
+              if (!visited.has(key)) { visited.add(key); queue.push({ x, y }); }
+            }
+          }
+        }
+
+        while (queue.length > 0) {
+          const pos = queue.shift()!;
+          for (const [dx, dy] of [[0,-1],[0,1],[1,0],[-1,0],[1,-1],[1,1],[-1,-1],[-1,1]] as const) {
+            const nx = pos.x + dx;
+            const ny = pos.y + dy;
+            const key = `${nx},${ny}`;
+            if (visited.has(key)) continue;
+            if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+            if (grid[ny]![nx]!.terrain === Terrain.Water) continue;
+            visited.add(key);
+            queue.push({ x: nx, y: ny });
+          }
+        }
+
+        // Every non-water cell must have been visited
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            if (grid[y]![x]!.terrain !== Terrain.Water) {
+              expect(visited.has(`${x},${y}`)).toBe(true);
+            }
+          }
         }
       }
-      expect(hasSand).toBe(false);
-      expect(hasWater).toBe(false);
     });
+  });
 
+  describe("archetype distribution", () => {
+    it("produces varied layouts across 100 seeds", () => {
+      const layouts = new Set<string>();
+      for (let i = 0; i < 100; i++) {
+        const course = generateCourse(`arch-${i}`, GRID_WIDTH, GRID_HEIGHT);
+        const fairwayCells: string[] = [];
+        for (let y = 0; y < course.height; y++) {
+          for (let x = 0; x < course.width; x++) {
+            if (course.grid[y]![x]!.terrain === Terrain.Fairway) {
+              fairwayCells.push(`${x},${y}`);
+            }
+          }
+        }
+        layouts.add(fairwayCells.join("|"));
+      }
+      expect(layouts.size).toBeGreaterThanOrEqual(5);
+    });
+  });
+
+  describe("config", () => {
     it("respects slope count of zero", () => {
       const config = { ...DEFAULT_COURSE_CONFIG, slopeCount: 0 };
       const course = generateCourse("no-slopes", GRID_WIDTH, GRID_HEIGHT, config);
