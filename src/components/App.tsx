@@ -102,6 +102,18 @@ export function App() {
 
   if (!initialised) return null;
 
+  const gameOverPanel = (
+    <div style={styles.gameOver}>
+      <div style={styles.gameOverText}>
+        Holed out in <strong>{state.stroke}</strong> strokes!
+        {state.stroke <= state.par && " 🏆"}
+      </div>
+      <button type="button" style={styles.newGameButton} onClick={handleNewGame}>
+        New Game
+      </button>
+    </div>
+  );
+
   return (
     <div style={isWide ? styles.containerWide : styles.containerMobile}>
       {isWide ? (
@@ -114,15 +126,7 @@ export function App() {
           <div style={styles.controlsPaneWide}>
             <HUD state={state} />
             {state.phase === Phase.HoledOut ? (
-              <div style={styles.gameOver}>
-                <div style={styles.gameOverText}>
-                  Holed out in <strong>{state.stroke}</strong> strokes!
-                  {state.stroke <= state.par && " 🏆"}
-                </div>
-                <button type="button" style={styles.newGameButton} onClick={handleNewGame}>
-                  New Game
-                </button>
-              </div>
+              gameOverPanel
             ) : (
               <div style={styles.controlsGroupWide}>
                 <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
@@ -144,15 +148,7 @@ export function App() {
           </div>
           <HUD state={state} />
           {state.phase === Phase.HoledOut ? (
-            <div style={styles.gameOver}>
-              <div style={styles.gameOverText}>
-                Holed out in <strong>{state.stroke}</strong> strokes!
-                {state.stroke <= state.par && " 🏆"}
-              </div>
-              <button type="button" style={styles.newGameButton} onClick={handleNewGame}>
-                New Game
-              </button>
-            </div>
+            gameOverPanel
           ) : (
             <div style={styles.controlsRow}>
               <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
@@ -196,13 +192,12 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#0f0f23",
   },
   canvasPaneWide: {
-    flex: 1,
+    flex: "0 1 400px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
     minWidth: 0,
-    maxWidth: "400px",
   },
   controlsPaneWide: {
     flex: 1,
