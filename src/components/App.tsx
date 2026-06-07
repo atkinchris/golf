@@ -97,18 +97,12 @@ export function App() {
     setEvents(newEvents);
   }, []);
 
-  // Calculate cell size based on viewport width
-  const cellSize = useMemo(() => {
-    if (typeof window === "undefined") return 16;
-    return Math.floor(window.innerWidth / GRID_WIDTH);
-  }, []);
-
   if (!initialised) return null;
 
   return (
     <div style={styles.container}>
       <div style={styles.canvasContainer}>
-        <GameCanvas state={state} animatedBall={animatedBall} cellSize={cellSize} />
+        <GameCanvas state={state} animatedBall={animatedBall} />
       </div>
 
       <HUD state={state} />

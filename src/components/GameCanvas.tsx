@@ -16,12 +16,12 @@ const BALL_OUTLINE = "#333333";
 const TEE_COLOUR = "#cc4444";
 const HOLE_COLOUR = "#111111";
 const PATH_COLOUR = "#ffffff88";
+const CELL_SIZE = 16;
 
 interface Props {
   state: GameState;
   /** Animated ball position (may differ from state.ball during animation). */
   animatedBall: Position | null;
-  cellSize: number;
 }
 
 const DIRECTION_ARROWS: Record<string, string> = {
@@ -122,7 +122,7 @@ function drawBall(ctx: CanvasRenderingContext2D, pos: Position, cellSize: number
   ctx.stroke();
 }
 
-export function GameCanvas({ state, animatedBall, cellSize }: Props) {
+export function GameCanvas({ state, animatedBall }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const courseImageRef = useRef<ImageBitmap | null>(null);
   const lastCourseRef = useRef<Course | null>(null);
@@ -130,16 +130,16 @@ export function GameCanvas({ state, animatedBall, cellSize }: Props) {
   // Cache the course render as an ImageBitmap
   const renderCourseToCache = useCallback(
     (course: Course) => {
-      const offscreen = new OffscreenCanvas(course.width * cellSize, course.height * cellSize);
+      const offscreen = new OffscreenCanvas(course.width * CELL_SIZE, course.height * CELL_SIZE);
       const ctx = offscreen.getContext("2d") as unknown as CanvasRenderingContext2D | null;
       if (!ctx) return;
-      drawCourse(ctx, course, cellSize);
+      drawCourse(ctx, course, CELL_SIZE);
       createImageBitmap(offscreen).then((bitmap) => {
         courseImageRef.current = bitmap;
         lastCourseRef.current = course;
       });
     },
-    [cellSize],
+    [],
   );
 
   // Draw frame
@@ -161,18 +161,18 @@ export function GameCanvas({ state, animatedBall, cellSize }: Props) {
     if (courseImageRef.current) {
       ctx.drawImage(courseImageRef.current, 0, 0);
     } else {
-      drawCourse(ctx, state.course, cellSize);
+      drawCourse(ctx, state.course, CELL_SIZE);
     }
 
     // Shot path
-    drawShotPath(ctx, state.shotHistory, cellSize);
+    drawShotPath(ctx, state.shotHistory, CELL_SIZE);
 
     // Ball
     const ballPos = animatedBall ?? state.ball;
     if (!state.isComplete) {
-      drawBall(ctx, ballPos, cellSize);
+      drawBall(ctx, ballPos, CELL_SIZE);
     }
-  }, [state, animatedBall, cellSize, renderCourseToCache]);
+  }, [state, animatedBall, renderCourseToCache]);
 
   useEffect(() => {
     draw();
@@ -183,11 +183,10 @@ export function GameCanvas({ state, animatedBall, cellSize }: Props) {
   return (
     <canvas
       ref={canvasRef}
-      width={state.course.width * cellSize}
-      height={state.course.height * cellSize}
+      width={state.course.width * CELL_SIZE}
+      height={state.course.height * CELL_SIZE}
       style={{
         width: "100%",
-        maxWidth: state.course.width * cellSize,
         height: "auto",
         imageRendering: "pixelated",
       }}
