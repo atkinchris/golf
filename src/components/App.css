@@ -1,23 +1,27 @@
-/* ---- Mobile-first base layout (column) ---- */
+/* ---- Mobile-first base layout (canvas top, controls bottom) ---- */
 
 .app {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "canvas"
+    "controls";
   height: 100dvh;
   overflow: hidden;
   background: #0f0f23;
 }
 
 .canvas-pane {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  grid-area: canvas;
+  display: grid;
+  place-items: center;
   overflow: hidden;
   min-height: 0;
 }
 
 .controls-pane {
+  grid-area: controls;
   display: flex;
   flex-direction: column;
 }
@@ -29,20 +33,28 @@
   padding: 6px 8px 12px;
 }
 
-/* ---- Desktop layout (row) ---- */
+/* ---- Desktop layout (canvas 2/3, controls 1/3) ---- */
 
 @media (min-width: 600px) {
   .app {
-    flex-direction: row;
+    grid-template-rows: 1fr;
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas: "canvas controls";
   }
 
   .canvas-pane {
-    flex: 0 1 400px;
-    min-width: 0;
+    max-width: 400px;
+    justify-self: center;
+    align-self: center;
+    width: 100%;
+  }
+
+  .game-canvas {
+    width: auto;
+    max-width: 100%;
   }
 
   .controls-pane {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
