@@ -228,7 +228,7 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
     }
   }
 
-  // Layer 5: Tree icons
+  // Layer 5: Tree icons (two stacked triangles, pine silhouette)
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       if (grid[y]?.[x]?.terrain !== Terrain.Trees) continue;
@@ -236,13 +236,20 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
       const cy = y * cellSize + cellSize / 2;
       const size = 16;
       ctx.fillStyle = TREE_COLOUR;
+      // Upper triangle
       ctx.beginPath();
       ctx.moveTo(cx, cy - size);
-      ctx.lineTo(cx - size * 0.65, cy + size * 0.4);
-      ctx.lineTo(cx + size * 0.65, cy + size * 0.4);
+      ctx.lineTo(cx - size * 0.55, cy - size * 0.15);
+      ctx.lineTo(cx + size * 0.55, cy - size * 0.15);
       ctx.closePath();
       ctx.fill();
-      ctx.fillRect(cx - 2, cy + size * 0.4, 4, size * 0.4);
+      // Lower triangle - slightly wider, apex overlaps upper base
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size * 0.5);
+      ctx.lineTo(cx - size * 0.7, cy + size * 0.55);
+      ctx.lineTo(cx + size * 0.7, cy + size * 0.55);
+      ctx.closePath();
+      ctx.fill();
     }
   }
 
