@@ -14,10 +14,10 @@
   width: 44px;
   height: 44px;
   font-size: 20px;
-  border: 2px solid #c0c0c0;
+  border: 2px solid var(--colour-border);
   border-radius: 8px;
   background: #fff;
-  color: #1a1a1a;
+  color: var(--colour-text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,10 +38,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #c0c0c0;
+  border: 2px solid var(--colour-border);
   border-radius: 8px;
-  background: #e8e8e4;
-  color: #1a1a1a;
+  background: var(--colour-surface);
+  color: var(--colour-text-primary);
   font-size: 18px;
   font-weight: bold;
 }

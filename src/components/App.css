@@ -9,7 +9,7 @@
     "controls";
   height: 100dvh;
   overflow: hidden;
-  background: #f5f5f3;
+  background: var(--colour-background);
 }
 
 .canvas-pane {
@@ -94,8 +94,8 @@
   font-weight: bold;
   border: 2px solid #1a1a1a;
   border-radius: 10px;
-  background: #1a1a1a;
-  color: #f5f5f3;
+  background: var(--colour-text-primary);
+  color: var(--colour-text-on-dark);
   cursor: pointer;
   touch-action: manipulation;
 }

@@ -4,6 +4,15 @@
   box-sizing: border-box;
 }
 
+:root {
+  --colour-background: #f0f0eb;
+  --colour-surface: #e4e4de;
+  --colour-border: #c4c4bc;
+  --colour-text-primary: #1a1a1a;
+  --colour-text-secondary: #5a5a52;
+  --colour-text-on-dark: #f0f0eb;
+}
+
 html,
 body,
 #root {
