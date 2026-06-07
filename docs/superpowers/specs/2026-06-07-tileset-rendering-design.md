@@ -2,11 +2,11 @@
 
 ## Summary
 
-Replace the solid-colour `fillRect` terrain rendering in `GameCanvas.tsx` with a programmatic tileset system that draws greyscale terrain with rounded corners, dot grids, and terrain-specific patterns. Style matches the reference images in `reference/`.
+Replace the solid-colour `fillRect` terrain rendering in `GameCanvas.tsx` with a programmatic tileset system that draws coloured terrain with rounded corners, dot grids, and terrain-specific patterns. Style matches the reference images in `reference/` and `reference/colours/`.
 
 ## Visual Style
 
-Greyscale/monochrome. Minimalist. Each terrain type has a distinct fill treatment but the palette is restricted to greys, off-white, and near-black.
+Minimalist. Each terrain type has a distinct fill colour. Dot overlays use a darker shade of their terrain's fill colour. Non-terrain elements (tee, hole, ball, shot path, slope arrows) remain dark/near-black.
 
 ## Cell Size
 
@@ -17,35 +17,35 @@ Greyscale/monochrome. Minimalist. Each terrain type has a distinct fill treatmen
 ### 1. Rough (base layer)
 
 - Fills the entire canvas as flat squares - never rounded
-- Colour: off-white (`#f5f5f3`)
-- Dot grid: small circle (radius ~3px) at each cell centre in light grey (`#c0c0c0`)
+- Colour: warm off-white (`#f0f0eb`)
+- Dot grid: small circle (radius ~3px) at each cell centre in `#b8b8b2`
 
 ### 2. Fairway
 
-- Light grey fill (`#d4d4d0`)
+- Sage green fill (`#87ab78`)
 - Rounded convex corners (radius 24px)
-- Dot at cell centre (same as rough dot grid, maintaining continuity)
+- Dot at cell centre in `#5e8050`
 
 ### 3. Sand
 
-- Very light grey fill (`#e8e8e4`)
+- Muted gold fill (`#b5993c`)
 - Rounded convex corners (radius 24px)
-- Diagonal hatch overlay: 45-degree lines, drawn in global coordinates so they flow continuously across adjacent sand tiles (known bug in mockup - alignment needs fixing during implementation)
-- Dot at cell centre
+- Diagonal hatch overlay: 45-degree lines, drawn in global coordinates so they flow continuously across adjacent sand tiles (known bug in mockup - alignment needs fixing during implementation), hatch colour `#8a7028`
+- Dot at cell centre in `#8a7028`
 
 ### 4. Water
 
-- Dark charcoal fill (`#4a4a4a`)
+- Steel blue fill (`#5b8fcc`)
 - Rounded convex corners (radius 24px)
-- Grid lines only on outer edges (edges facing non-water). No internal grid lines between adjacent water tiles - the region reads as one continuous dark shape.
-- Lighter dot at cell centre (`#6a6a6a`)
+- Grid lines only on outer edges (edges facing non-water). No internal grid lines between adjacent water tiles - the region reads as one continuous shape.
+- Dot at cell centre in `#3a6aaa`
 
 ### 5. Trees
 
-- Not a filled region. Trees are drawn as small black triangular pine icons on the background.
+- Not a filled region. Trees are drawn as small triangular pine icons on the background.
 - Each tree cell gets a single tree icon centred in the cell.
 - Trees do not participate in the corner-rounding system.
-- Icon colour: near-black (`#1a1a1a`)
+- Icon colour: dark forest green (`#3a5e2a`)
 
 ## Corner Rounding Algorithm
 
@@ -82,7 +82,6 @@ Sand diagonal hatch alignment across tile boundaries. The lines must be computed
 
 ## Out of Scope
 
-- Colour changes (staying greyscale)
 - Course generation changes
 - Game logic changes
 - Animation changes
