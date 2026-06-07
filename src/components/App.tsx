@@ -126,7 +126,12 @@ export function App() {
       ) : (
         <div style={styles.controlsRow}>
           <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
-          <ActionColumn state={state} onRoll={handleRoll} onMulligan={handleMulligan} disabled={isAnimating} />
+          <ActionColumn
+            state={state}
+            onRoll={handleRoll}
+            onMulligan={handleMulligan}
+            disabled={isAnimating}
+          />
         </div>
       )}
     </div>

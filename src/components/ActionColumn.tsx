@@ -16,8 +16,7 @@ export function ActionColumn({ state, onRoll, onMulligan, disabled }: Props) {
 
   const canRoll = phase === Phase.AwaitingRoll;
   const canReroll =
-    phase === Phase.AwaitingDirection &&
-    (teeOffRerollAvailable || mulligansRemaining > 0);
+    phase === Phase.AwaitingDirection && (teeOffRerollAvailable || mulligansRemaining > 0);
 
   // When neither action is available, render an invisible placeholder so the
   // DirectionPicker does not shift position.

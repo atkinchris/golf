@@ -42,9 +42,7 @@ export function HUD({ state }: Props) {
         <span style={styles.right}>
           {"●".repeat(state.mulligansRemaining)}
           {"○".repeat(6 - state.mulligansRemaining)}
-          {terrainText && (
-            <span style={styles.terrain}> {terrainText}</span>
-          )}
+          {terrainText && <span style={styles.terrain}> {terrainText}</span>}
           {state.rawRoll !== null && (
             <span style={styles.roll}>
               {" "}
