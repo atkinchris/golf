@@ -161,7 +161,7 @@ describe("reduce", () => {
         { type: "DirectionChosen", direction: "N" },
         { type: "DiceRolled", value: 5 },
         { type: "DirectionChosen", direction: "N" },
-        { type: "PuttChosen", direction: "N" },
+        { type: "PuttChosen", direction: "S" },
       ];
       const state = reduce(events);
       expect(state.stroke).toBe(3);
