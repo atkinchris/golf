@@ -1,4 +1,5 @@
 import { type GameState, Phase } from "../engine/types";
+import "./ActionColumn.css";
 
 interface Props {
   state: GameState;
@@ -18,8 +19,6 @@ export function ActionColumn({ state, onRoll, onMulligan, disabled }: Props) {
   const canReroll =
     phase === Phase.AwaitingDirection && (teeOffRerollAvailable || mulligansRemaining > 0);
 
-  // When neither action is available, render an invisible placeholder so the
-  // DirectionPicker does not shift position.
   const isPlaceholder = !canRoll && !canReroll;
 
   let rerollLabel = "";
@@ -30,17 +29,11 @@ export function ActionColumn({ state, onRoll, onMulligan, disabled }: Props) {
   }
 
   return (
-    <div
-      style={{
-        ...styles.column,
-        opacity: isPlaceholder ? 0 : 1,
-        pointerEvents: isPlaceholder ? "none" : "auto",
-      }}
-    >
+    <div className={`action-column${isPlaceholder ? " action-column--hidden" : ""}`}>
       {canRoll && (
         <button
           type="button"
-          style={{ ...styles.button, ...styles.rollButton }}
+          className="action-button action-button--roll"
           onClick={onRoll}
           disabled={disabled}
         >
@@ -50,7 +43,7 @@ export function ActionColumn({ state, onRoll, onMulligan, disabled }: Props) {
       {canReroll && (
         <button
           type="button"
-          style={{ ...styles.button, ...styles.mulliganButton }}
+          className="action-button action-button--mulligan"
           onClick={onMulligan}
           disabled={disabled}
         >
@@ -60,31 +53,3 @@ export function ActionColumn({ state, onRoll, onMulligan, disabled }: Props) {
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  column: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-  },
-  button: {
-    flex: 1,
-    fontSize: "14px",
-    fontWeight: "bold",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    touchAction: "manipulation",
-    WebkitTapHighlightColor: "transparent",
-    whiteSpace: "pre-line",
-    lineHeight: "1.3",
-  },
-  rollButton: {
-    background: "#4a90d9",
-    color: "#fff",
-  },
-  mulliganButton: {
-    background: "#d4a843",
-    color: "#1a1a2e",
-  },
-};
