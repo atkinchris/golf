@@ -296,8 +296,8 @@ function drawShotPath(
   if (shotHistory.length === 0) return;
 
   ctx.strokeStyle = PATH_COLOUR;
-  ctx.lineWidth = 2;
-  ctx.setLineDash([4, 4]);
+  ctx.lineWidth = 3;
+  ctx.setLineDash([8, 8]);
 
   for (const shot of shotHistory) {
     ctx.beginPath();
@@ -312,11 +312,11 @@ function drawShotPath(
 function drawBall(ctx: CanvasRenderingContext2D, pos: Position, cellSize: number) {
   const cx = pos.x * cellSize + cellSize / 2;
   const cy = pos.y * cellSize + cellSize / 2;
-  const radius = cellSize * 0.3;
+  const radius = 8;
 
   ctx.fillStyle = BALL_COLOUR;
   ctx.strokeStyle = BALL_OUTLINE;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.fill();
