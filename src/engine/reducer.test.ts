@@ -1,13 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getBallTerrain, getEffectiveRoll, reduce } from "./reducer";
-import {
-  type GameEvent,
-  GRID_HEIGHT,
-  GRID_WIDTH,
-  PAR,
-  Phase,
-  Terrain,
-} from "./types";
+import { type GameEvent, GRID_HEIGHT, GRID_WIDTH, PAR, Phase, Terrain } from "./types";
 
 // ---- Helpers ----
 

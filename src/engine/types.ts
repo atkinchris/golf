@@ -100,11 +100,7 @@ export interface PuttChosenEvent {
   direction: Direction;
 }
 
-export type GameEvent =
-  | GameStartedEvent
-  | DiceRolledEvent
-  | DirectionChosenEvent
-  | PuttChosenEvent;
+export type GameEvent = GameStartedEvent | DiceRolledEvent | DirectionChosenEvent | PuttChosenEvent;
 
 // ---- Game State ----
 

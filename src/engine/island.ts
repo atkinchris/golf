@@ -1,9 +1,9 @@
 import type { PRNG } from "./prng";
 import {
   type Cell,
-  type Direction,
   DIRECTION_VECTORS,
   DIRECTIONS,
+  type Direction,
   type Position,
   Terrain,
 } from "./types";
@@ -115,11 +115,7 @@ export function placeWaterBlock(
  * Flood-fills from all grid edges through non-water cells.
  * Any non-water cell not reached is converted to water.
  */
-export function validateWaterInvariant(
-  grid: Cell[][],
-  width: number,
-  height: number,
-): void {
+export function validateWaterInvariant(grid: Cell[][], width: number, height: number): void {
   const visited = new Set<string>();
   const queue: Position[] = [];
 
@@ -250,11 +246,7 @@ export function placeSlopes(
       const nx = x + vec.dx;
       const ny = y + vec.dy;
       const nextTerrain = getTerrain(grid, width, height, nx, ny);
-      if (
-        nextTerrain !== null &&
-        nextTerrain !== Terrain.Water &&
-        nextTerrain !== Terrain.Trees
-      ) {
+      if (nextTerrain !== null && nextTerrain !== Terrain.Water && nextTerrain !== Terrain.Trees) {
         validDirs.push(dir);
       }
     }

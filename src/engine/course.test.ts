@@ -225,7 +225,8 @@ describe("generateCourse", () => {
         }
 
         while (queue.length > 0) {
-          const pos = queue.shift()!;
+          const pos = queue.shift();
+          if (!pos) break;
           for (const [dx, dy] of [
             [0, -1],
             [0, 1],

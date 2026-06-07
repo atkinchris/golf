@@ -34,13 +34,13 @@ interface Props {
 
 /** Rotation angle in radians for each slope direction (0 = pointing up/North). */
 const DIRECTION_ANGLES: Record<string, number> = {
-  N:  0,
+  N: 0,
   NE: Math.PI * 0.25,
-  E:  Math.PI * 0.5,
+  E: Math.PI * 0.5,
   SE: Math.PI * 0.75,
-  S:  Math.PI,
+  S: Math.PI,
   SW: Math.PI * 1.25,
-  W:  Math.PI * 1.5,
+  W: Math.PI * 1.5,
   NW: Math.PI * 1.75,
 };
 
@@ -270,8 +270,8 @@ function drawCourse(ctx: CanvasRenderingContext2D, course: Course, cellSize: num
       const headLen = cellSize * 0.22;
       // Total arrow length: shaftLen + headLen, centred on the cell.
       const totalLen = shaftLen + headLen;
-      const tipY = -totalLen / 2;          // tip (towards N before rotation)
-      const shaftBaseY = tipY + headLen;   // base of arrowhead / top of shaft
+      const tipY = -totalLen / 2; // tip (towards N before rotation)
+      const shaftBaseY = tipY + headLen; // base of arrowhead / top of shaft
 
       ctx.save();
       ctx.translate(cx, cy);

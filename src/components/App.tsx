@@ -111,11 +111,7 @@ export function App() {
         ) : (
           <div className="controls-row">
             <DirectionPicker state={state} onDirection={handleDirection} disabled={isAnimating} />
-            <ActionColumn
-              state={state}
-              onRoll={handleRoll}
-              disabled={isAnimating}
-            />
+            <ActionColumn state={state} onRoll={handleRoll} disabled={isAnimating} />
           </div>
         )}
       </div>

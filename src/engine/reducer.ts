@@ -1,11 +1,5 @@
 import { generateCourse } from "./course";
-import {
-  type GameEvent,
-  type GameState,
-  PAR,
-  Phase,
-  type Terrain,
-} from "./types";
+import { type GameEvent, type GameState, PAR, Phase, type Terrain } from "./types";
 import { getCell, getTerrainModifier, validateMove } from "./validation";
 
 function initialState(): GameState {
