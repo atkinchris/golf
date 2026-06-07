@@ -17,6 +17,11 @@
   min-height: 0;
 }
 
+.controls-pane {
+  display: flex;
+  flex-direction: column;
+}
+
 .controls-row {
   display: flex;
   align-items: stretch;
@@ -33,7 +38,6 @@
 
   .canvas-pane {
     flex: 0 1 400px;
-    min-height: auto;
     min-width: 0;
   }
 
@@ -49,7 +53,6 @@
   }
 
   .controls-row {
-    flex-direction: row;
     align-items: center;
     padding: 0;
   }

@@ -129,19 +129,16 @@ export function GameCanvas({ state, animatedBall }: Props) {
   const lastCourseRef = useRef<Course | null>(null);
 
   // Cache the course render as an ImageBitmap
-  const renderCourseToCache = useCallback(
-    (course: Course) => {
-      const offscreen = new OffscreenCanvas(course.width * CELL_SIZE, course.height * CELL_SIZE);
-      const ctx = offscreen.getContext("2d") as unknown as CanvasRenderingContext2D | null;
-      if (!ctx) return;
-      drawCourse(ctx, course, CELL_SIZE);
-      createImageBitmap(offscreen).then((bitmap) => {
-        courseImageRef.current = bitmap;
-        lastCourseRef.current = course;
-      });
-    },
-    [],
-  );
+  const renderCourseToCache = useCallback((course: Course) => {
+    const offscreen = new OffscreenCanvas(course.width * CELL_SIZE, course.height * CELL_SIZE);
+    const ctx = offscreen.getContext("2d") as unknown as CanvasRenderingContext2D | null;
+    if (!ctx) return;
+    drawCourse(ctx, course, CELL_SIZE);
+    createImageBitmap(offscreen).then((bitmap) => {
+      courseImageRef.current = bitmap;
+      lastCourseRef.current = course;
+    });
+  }, []);
 
   // Draw frame
   const draw = useCallback(() => {
