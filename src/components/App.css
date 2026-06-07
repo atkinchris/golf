@@ -1,0 +1,82 @@
+/* ---- Mobile-first base layout (column) ---- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  background: #0f0f23;
+}
+
+.canvas-pane {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.controls-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 6px 8px 12px;
+}
+
+/* ---- Desktop layout (row) ---- */
+
+@media (min-width: 600px) {
+  .app {
+    flex-direction: row;
+  }
+
+  .canvas-pane {
+    flex: 0 1 400px;
+    min-height: auto;
+    min-width: 0;
+  }
+
+  .controls-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  .controls-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 0;
+  }
+}
+
+/* ---- Game over panel ---- */
+
+.game-over {
+  padding: 24px;
+  text-align: center;
+}
+
+.game-over-text {
+  color: #ffd700;
+  font-size: 20px;
+  margin-bottom: 16px;
+  font-family: system-ui, sans-serif;
+}
+
+.new-game-button {
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  background: #4a90d9;
+  color: #fff;
+  cursor: pointer;
+  touch-action: manipulation;
+}
