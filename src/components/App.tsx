@@ -115,7 +115,12 @@ export function App() {
     [dispatch, state.phase],
   );
 
-  useKeyboard({ phase: state.phase, disabled: isAnimating, onRoll: handleRoll, onDirection: handleDirection });
+  useKeyboard({
+    phase: state.phase,
+    disabled: isAnimating,
+    onRoll: handleRoll,
+    onDirection: handleDirection,
+  });
 
   const handleNewGame = useCallback(() => {
     const seed = generateSeed();
