@@ -136,6 +136,16 @@ describe("useKeyboard", () => {
       expect(onRoll).not.toHaveBeenCalled();
       expect(onDirection).not.toHaveBeenCalled();
     });
+
+    it("does not call onRoll or onDirection during NotStarted", () => {
+      renderHook(() =>
+        useKeyboard({ phase: Phase.NotStarted, disabled: false, onRoll, onDirection }),
+      );
+      fire("s");
+      fire("q");
+      expect(onRoll).not.toHaveBeenCalled();
+      expect(onDirection).not.toHaveBeenCalled();
+    });
   });
 
   describe("uppercase keys", () => {
