@@ -6,7 +6,7 @@ import {
   DIRECTION_VECTORS,
   Terrain,
 } from "../src/engine/types.ts";
-import type { CourseConfig, Course, Position, Direction } from "../src/engine/types.ts";
+import type { CourseConfig, Course, Position } from "../src/engine/types.ts";
 import { validateMove } from "../src/engine/validation.ts";
 import type { CourseMetrics } from "./types.ts";
 
