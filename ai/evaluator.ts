@@ -164,6 +164,24 @@ function buildUserPrompt(
   return sections.join("\n");
 }
 
+// ---- JSON extraction ----
+
+/** Extract the first JSON object from text, handling prose and markdown fencing. */
+function extractJsonObject(text: string): string | null {
+  const stripped = text.replace(/```(?:json)?\s*/g, "").replace(/```/g, "");
+  const start = stripped.indexOf("{");
+  if (start === -1) return null;
+
+  let depth = 0;
+  for (let i = start; i < stripped.length; i++) {
+    if (stripped[i] === "{") depth++;
+    else if (stripped[i] === "}") depth--;
+    if (depth === 0) return stripped.slice(start, i + 1);
+  }
+
+  return null;
+}
+
 // ---- Response parsing ----
 
 interface EvaluatorResponse {
@@ -186,13 +204,13 @@ function parseResponse(
   raw: string,
   currentConfig: CourseConfig,
 ): { proposals: ConfigProposal[]; archetypeIdeas: ArchetypeProposal[] } {
-  // Strip markdown code fences if present
-  const cleaned = raw
-    .replace(/^```(?:json)?\s*/m, "")
-    .replace(/\s*```\s*$/m, "")
-    .trim();
+  // Extract the first JSON object using brace-depth matching
+  const jsonStr = extractJsonObject(raw);
+  if (!jsonStr) {
+    throw new SyntaxError("No JSON object found in response");
+  }
 
-  const parsed: EvaluatorResponse = JSON.parse(cleaned);
+  const parsed: EvaluatorResponse = JSON.parse(jsonStr);
 
   // Parse config changes
   const validFields = new Set(Object.keys(CONFIG_BOUNDS));
