@@ -44,6 +44,7 @@ OPENROUTER_API_KEY=sk-or-... npm run iterate -- [options]
 | `--play-count` | 10 | Courses played per iteration (after filtering) |
 | `--model` | `anthropic/claude-sonnet-4` | OpenRouter model slug |
 | `--resume` | - | Path to a previous run JSON to continue from |
+| `--apply` | - | Write the final config back to `src/engine/types.ts` |
 | `--help` | - | Show help |
 
 ### Examples
@@ -65,6 +66,14 @@ Resume a previous run for 2 more iterations:
 ```sh
 OPENROUTER_API_KEY=sk-or-... npm run iterate -- --resume results/run-1717836000000.json --iterations 2
 ```
+
+Run and apply the final config to the game source code:
+
+```sh
+OPENROUTER_API_KEY=sk-or-... npm run iterate -- --apply
+```
+
+With `--apply`, the loop writes the final `CourseConfig` values back to `src/engine/types.ts` after all iterations complete. This lets you chain runs - each one starts from the current source config and iterates from there.
 
 ## Output
 
