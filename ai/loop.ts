@@ -166,30 +166,34 @@ export async function runLoop(options: CliOptions): Promise<void> {
       filtered = sorted.slice(0, 3);
     }
 
-    // Step e: Play each filtered course
+    // Step e: Play filtered courses in parallel
+    console.log(`\nPlaying ${filtered.length} courses in parallel...`);
+    const playResults = await Promise.allSettled(
+      filtered.map(async (entry) => {
+        const played = await playGame(client, options.model, entry.course, entry.metrics);
+        console.log(
+          `  ${entry.course.seed}: ${played.rating.strokes} strokes, decision quality ${played.rating.decisionQuality}/5`,
+        );
+        return { played, course: entry.course };
+      }),
+    );
+
     const playedCourses: PlayedCourse[] = [];
     const courses: Course[] = [];
 
-    for (const entry of filtered) {
-      console.log(`\nPlaying course ${entry.course.seed}...`);
-      try {
-        const played = await playGame(client, options.model, entry.course, entry.metrics);
-        playedCourses.push(played);
-        courses.push(entry.course);
-        console.log(
-          `  Result: ${played.rating.strokes} strokes, decision quality ${played.rating.decisionQuality}/5`,
-        );
-      } catch (error: unknown) {
+    for (const result of playResults) {
+      if (result.status === "fulfilled") {
+        playedCourses.push(result.value.played);
+        courses.push(result.value.course);
+      } else {
+        const error = result.reason;
         if (isFatalApiError(error)) {
           console.error(`\nFatal API error: ${getFatalErrorMessage(error)}`);
           saveRunLog(outputPath, runLog);
           console.error(`Progress saved to ${outputPath}`);
           process.exit(1);
         }
-        console.error(
-          `  Error playing ${entry.course.seed}:`,
-          error instanceof Error ? error.message : error,
-        );
+        console.error(`  Error:`, error instanceof Error ? error.message : error);
       }
     }
 
