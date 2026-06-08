@@ -1,4 +1,4 @@
-import { dogleg, fortressGreen, gauntlet, islandHop, splitDecision } from "./archetypes";
+import { dogleg, forestSlalom, fortressGreen, gauntlet, islandHop, slopedAmphitheatre, splitDecision } from "./archetypes";
 import { createGrid, isReachable, placeSlopes, setTerrain, validateWaterInvariant } from "./island";
 import { PRNG } from "./prng";
 import {
@@ -28,6 +28,8 @@ const ARCHETYPE_FNS: Record<
   "split-decision": splitDecision,
   dogleg,
   "fortress-green": fortressGreen,
+  "forest-slalom": forestSlalom,
+  "sloped-amphitheatre": slopedAmphitheatre,
 };
 
 /** Generate a course deterministically from a seed. */

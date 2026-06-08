@@ -51,6 +51,8 @@ export const ARCHETYPES = [
   "split-decision",
   "dogleg",
   "fortress-green",
+  "forest-slalom",
+  "sloped-amphitheatre",
 ] as const;
 export type Archetype = (typeof ARCHETYPES)[number];
 
