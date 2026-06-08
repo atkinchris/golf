@@ -397,3 +397,172 @@ export function fortressGreen(
     placeTreeCluster(grid, width, height, tx, ty, 2, 2);
   }
 }
+
+/**
+ * Forest Slalom: A single large fairway with diagonal tree lines cutting
+ * across it, creating a winding corridor. The player must zig-zag around
+ * tree barriers. Sand at gap openings. Optional water on the outside of
+ * a bend. Scattered extra trees controlled by treeDensity.
+ */
+export function forestSlalom(
+  grid: Cell[][],
+  width: number,
+  height: number,
+  _tee: Position,
+  _hole: Position,
+  config: CourseConfig,
+  rng: PRNG,
+): void {
+  // Step 1: Place one large fairway island spanning most of the grid
+  const margin = 1;
+  placeIsland(
+    grid,
+    width,
+    height,
+    { x: margin, y: 2, w: width - margin * 2, h: height - 4 },
+    rng,
+  );
+
+  // Step 2: Place 3-4 diagonal tree lines across the fairway
+  const lineCount = rng.int(3, 4);
+  const sectionH = Math.floor((height - 4) / (lineCount + 1));
+
+  for (let i = 0; i < lineCount; i++) {
+    const fromLeft = i % 2 === 0;
+    const lineY = 3 + sectionH * (i + 1);
+    const lineWidth = Math.floor(width * 0.55);
+
+    const startX = fromLeft ? margin : width - margin - lineWidth;
+
+    // Place 2-cell-thick diagonal tree line
+    for (let dx = 0; dx < lineWidth; dx++) {
+      const x = startX + dx;
+      const yOffset = Math.floor(dx / (fromLeft ? 3 : 4)) * (fromLeft ? -1 : 1);
+      const y1 = lineY + yOffset;
+      const y2 = y1 + 1;
+
+      for (const y of [y1, y2]) {
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+          const cell = grid[y]?.[x];
+          if (cell && cell.terrain === Terrain.Fairway) {
+            cell.terrain = Terrain.Trees;
+          }
+        }
+      }
+    }
+
+    // Sand trap at the gap opening
+    const gapX = fromLeft ? Math.min(width - 2, startX + lineWidth) : Math.max(0, startX - 1);
+    placeSandPatch(grid, width, height, gapX, lineY, 2, 1);
+  }
+
+  // Step 3: Optional water block on the outside of one bend
+  if (rng.chance(config.waterProbability)) {
+    const bendIndex = rng.int(0, lineCount - 1);
+    const fromLeft = bendIndex % 2 === 0;
+    const waterY = 3 + sectionH * (bendIndex + 1) + 2;
+    const waterX = fromLeft ? rng.int(0, margin) : rng.int(width - 3, width - 1);
+    placeWaterBlock(grid, width, height, Math.max(0, waterX), Math.max(0, waterY), 2, 2);
+  }
+
+  // Step 4: Extra scattered tree clusters based on treeDensity
+  const extraTrees = Math.floor(config.treeDensity * 10);
+  for (let t = 0; t < extraTrees; t++) {
+    const tx = rng.int(0, width - 2);
+    const ty = rng.int(0, height - 2);
+    placeTreeCluster(grid, width, height, tx, ty, 2, 1);
+  }
+}
+
+/**
+ * Sloped Amphitheatre: Green sits in a bowl surrounded by inward-facing
+ * slopes. Large tee pad at the bottom, mid-approach fairway, small green
+ * at top. Slopes around the green push the ball inward - landing on the
+ * correct side helps, wrong side pushes past. Sand ring outside the slopes.
+ * Water flanking the approach corridor. Tree clusters scattered.
+ */
+export function slopedAmphitheatre(
+  grid: Cell[][],
+  width: number,
+  height: number,
+  _tee: Position,
+  hole: Position,
+  config: CourseConfig,
+  rng: PRNG,
+): void {
+  // Step 1: Large tee pad at bottom
+  const teeW = rng.int(config.islandSizeMin + 1, config.islandSizeMax);
+  const teeH = rng.int(config.islandSizeMin, config.islandSizeMax);
+  const teeX = Math.max(0, Math.min(width - teeW, Math.floor(width / 2) - Math.floor(teeW / 2)));
+  const teeY = Math.max(0, Math.min(height - teeH, height - teeH - 1));
+  placeIsland(grid, width, height, { x: teeX, y: teeY, w: teeW, h: teeH }, rng);
+
+  // Step 2: Mid-approach fairway
+  const midW = rng.int(config.islandSizeMin, config.islandSizeMax);
+  const midH = rng.int(config.islandSizeMin, config.islandSizeMax);
+  const midX = Math.max(0, Math.min(width - midW, Math.floor(width / 2) - Math.floor(midW / 2)));
+  const midY = Math.max(0, Math.floor(height * 0.45) - Math.floor(midH / 2));
+  placeIsland(grid, width, height, { x: midX, y: midY, w: midW, h: midH }, rng);
+
+  // Step 3: Green area around the hole - wider for the slope bowl
+  const greenW = rng.int(config.islandSizeMin + 1, Math.min(config.islandSizeMax, 6));
+  const greenH = rng.int(config.islandSizeMin + 1, Math.min(config.islandSizeMax, 5));
+  const greenX = Math.max(1, Math.min(width - greenW - 1, hole.x - Math.floor(greenW / 2)));
+  const greenY = Math.max(1, Math.min(height - greenH, hole.y - 1));
+  placeIsland(grid, width, height, { x: greenX, y: greenY, w: greenW, h: greenH }, rng);
+
+  // Step 4: Place inward-facing slopes around the green perimeter
+  type Dir = "N" | "S" | "E" | "W";
+  const slopePositions: { x: number; y: number; dir: Dir }[] = [];
+
+  // Top edge - slopes pointing south
+  for (let dx = 0; dx < greenW; dx++) {
+    slopePositions.push({ x: greenX + dx, y: greenY, dir: "S" });
+  }
+  // Bottom edge - slopes pointing north
+  for (let dx = 0; dx < greenW; dx++) {
+    slopePositions.push({ x: greenX + dx, y: greenY + greenH - 1, dir: "N" });
+  }
+  // Left edge - slopes pointing east
+  for (let dy = 1; dy < greenH - 1; dy++) {
+    slopePositions.push({ x: greenX, y: greenY + dy, dir: "E" });
+  }
+  // Right edge - slopes pointing west
+  for (let dy = 1; dy < greenH - 1; dy++) {
+    slopePositions.push({ x: greenX + greenW - 1, y: greenY + dy, dir: "W" });
+  }
+
+  for (const sp of slopePositions) {
+    if (sp.x === hole.x && sp.y === hole.y) continue;
+    if (sp.x < 0 || sp.x >= width || sp.y < 0 || sp.y >= height) continue;
+    const cell = grid[sp.y]?.[sp.x];
+    if (cell && cell.terrain === Terrain.Fairway) {
+      cell.slope = sp.dir;
+    }
+  }
+
+  // Step 5: Sand ring outside the green
+  for (let dy = -1; dy <= greenH; dy++) {
+    for (let dx = -1; dx <= greenW; dx++) {
+      const sx = greenX + dx;
+      const sy = greenY + dy;
+      const isInside = dx >= 0 && dx < greenW && dy >= 0 && dy < greenH;
+      if (!isInside && sx >= 0 && sx < width && sy >= 0 && sy < height) {
+        placeSandPatch(grid, width, height, sx, sy, 1, 1);
+      }
+    }
+  }
+
+  // Step 6: Water flanking the approach corridor
+  const approachY = midY;
+  const waterH = Math.max(1, Math.min(3, greenY - midY));
+  placeWaterBlock(grid, width, height, Math.max(0, midX - 3), approachY, 2, waterH);
+  placeWaterBlock(grid, width, height, Math.min(width - 2, midX + midW + 1), approachY, 2, waterH);
+
+  // Step 7: Tree clusters scattered
+  for (let t = 0; t < 3; t++) {
+    const tx = rng.int(0, width - 2);
+    const ty = rng.int(0, height - 2);
+    placeTreeCluster(grid, width, height, tx, ty, 2, 2);
+  }
+}

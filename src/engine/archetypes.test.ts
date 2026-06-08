@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dogleg, fortressGreen, gauntlet, islandHop, splitDecision } from "./archetypes";
+import { dogleg, forestSlalom, fortressGreen, gauntlet, islandHop, slopedAmphitheatre, splitDecision } from "./archetypes";
 import { createGrid } from "./island";
 import { PRNG } from "./prng";
 import { DEFAULT_COURSE_CONFIG, type Position, Terrain } from "./types";
@@ -133,5 +133,67 @@ describe("fortressGreen", () => {
       }
     }
     expect(sandNearHole).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe("forestSlalom", () => {
+  it("creates a single large fairway region", () => {
+    const grid = createGrid(12, 18);
+    const { tee, hole } = makeTeeHole();
+    forestSlalom(grid, 12, 18, tee, hole, DEFAULT_COURSE_CONFIG, new PRNG("fs1"));
+    const components = countFairwayComponents(grid, 12, 18);
+    expect(components).toBeGreaterThanOrEqual(1);
+    expect(components).toBeLessThanOrEqual(4);
+  });
+
+  it("places tree lines creating corridors", () => {
+    const grid = createGrid(12, 18);
+    const { tee, hole } = makeTeeHole();
+    forestSlalom(grid, 12, 18, tee, hole, DEFAULT_COURSE_CONFIG, new PRNG("fs2"));
+    let treeCount = 0;
+    for (const row of grid) {
+      for (const cell of row) {
+        if (cell.terrain === Terrain.Trees) treeCount++;
+      }
+    }
+    expect(treeCount).toBeGreaterThanOrEqual(12);
+  });
+});
+
+describe("slopedAmphitheatre", () => {
+  it("places slopes around the green area", () => {
+    const grid = createGrid(12, 18);
+    const { tee, hole } = makeTeeHole();
+    slopedAmphitheatre(grid, 12, 18, tee, hole, DEFAULT_COURSE_CONFIG, new PRNG("amp1"));
+
+    let slopeCount = 0;
+    for (let dy = -3; dy <= 3; dy++) {
+      for (let dx = -3; dx <= 3; dx++) {
+        const x = hole.x + dx;
+        const y = hole.y + dy;
+        if (x >= 0 && x < 12 && y >= 0 && y < 18) {
+          if (grid[y]?.[x]?.slope !== null) slopeCount++;
+        }
+      }
+    }
+    expect(slopeCount).toBeGreaterThanOrEqual(2);
+  });
+
+  it("places sand around the green", () => {
+    const grid = createGrid(12, 18);
+    const { tee, hole } = makeTeeHole();
+    slopedAmphitheatre(grid, 12, 18, tee, hole, DEFAULT_COURSE_CONFIG, new PRNG("amp2"));
+
+    let sandCount = 0;
+    for (let dy = -4; dy <= 4; dy++) {
+      for (let dx = -4; dx <= 4; dx++) {
+        const x = hole.x + dx;
+        const y = hole.y + dy;
+        if (x >= 0 && x < 12 && y >= 0 && y < 18) {
+          if (grid[y]?.[x]?.terrain === Terrain.Sand) sandCount++;
+        }
+      }
+    }
+    expect(sandCount).toBeGreaterThanOrEqual(2);
   });
 });
