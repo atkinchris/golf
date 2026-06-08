@@ -66,12 +66,12 @@ export interface CourseConfig {
 }
 
 export const DEFAULT_COURSE_CONFIG: CourseConfig = {
-  islandSizeMin: 3,
-  islandSizeMax: 6,
-  treeDensity: 0.15,
-  sandTrapCount: 2,
-  waterProbability: 0.5,
-  slopeCount: 3,
+  islandSizeMin: 4,
+  islandSizeMax: 7,
+  treeDensity: 0.25,
+  sandTrapCount: 3,
+  waterProbability: 0.65,
+  slopeCount: 5,
 };
 
 export const GRID_WIDTH = 12;
