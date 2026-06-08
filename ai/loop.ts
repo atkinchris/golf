@@ -12,9 +12,30 @@ import type {
   RunLog,
   PlayedCourse,
   CourseMetrics,
+  ConfigProposal,
+  ArchetypeProposal,
 } from "./types.ts";
 
 // ---- Helpers ----
+
+/** HTTP status codes that indicate a fatal, non-retryable API problem. */
+const FATAL_STATUS_CODES = new Set([401, 402, 403]);
+
+function isFatalApiError(error: unknown): boolean {
+  if (error == null || typeof error !== "object") return false;
+  if ("statusCode" in error && typeof (error as Record<string, unknown>).statusCode === "number") {
+    return FATAL_STATUS_CODES.has((error as Record<string, unknown>).statusCode as number);
+  }
+  return false;
+}
+
+function getFatalErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error != null && typeof error === "object" && "body" in error) {
+    return String((error as Record<string, unknown>).body);
+  }
+  return String(error);
+}
 
 function separator(): string {
   return "=".repeat(72);
@@ -155,8 +176,14 @@ export async function runLoop(options: CliOptions): Promise<void> {
         console.log(
           `  Result: ${played.rating.strokes} strokes, decision quality ${played.rating.decisionQuality}/5`,
         );
-      } catch (error) {
-        console.error(`  Error playing ${entry.course.seed}:`, error);
+      } catch (error: unknown) {
+        if (isFatalApiError(error)) {
+          console.error(`\nFatal API error: ${getFatalErrorMessage(error)}`);
+          saveRunLog(outputPath, runLog);
+          console.error(`Progress saved to ${outputPath}`);
+          process.exit(1);
+        }
+        console.error(`  Error playing ${entry.course.seed}:`, error instanceof Error ? error.message : error);
       }
     }
 
@@ -187,14 +214,30 @@ export async function runLoop(options: CliOptions): Promise<void> {
 
     // Step g: Evaluate
     console.log("\nEvaluating...");
-    const { proposals, archetypeIdeas } = await evaluate(
-      client,
-      options.model,
-      playedCourses,
-      courses,
-      config,
-      runLog.iterations,
-    );
+    let proposals: ConfigProposal[];
+    let archetypeIdeas: ArchetypeProposal[];
+    try {
+      const result = await evaluate(
+        client,
+        options.model,
+        playedCourses,
+        courses,
+        config,
+        runLog.iterations,
+      );
+      proposals = result.proposals;
+      archetypeIdeas = result.archetypeIdeas;
+    } catch (error: unknown) {
+      if (isFatalApiError(error)) {
+        console.error(`\nFatal API error: ${getFatalErrorMessage(error)}`);
+        saveRunLog(outputPath, runLog);
+        console.error(`Progress saved to ${outputPath}`);
+        process.exit(1);
+      }
+      console.error("  Evaluation failed:", error instanceof Error ? error.message : error);
+      proposals = [];
+      archetypeIdeas = [];
+    }
 
     // Step h: Apply proposals
     const nextConfig = applyProposals(config, proposals);
