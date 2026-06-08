@@ -1,12 +1,12 @@
 import { generateCourse } from "../src/engine/course.ts";
+import type { Course, CourseConfig, Position } from "../src/engine/types.ts";
 import {
-  GRID_WIDTH,
-  GRID_HEIGHT,
-  DIRECTIONS,
   DIRECTION_VECTORS,
+  DIRECTIONS,
+  GRID_HEIGHT,
+  GRID_WIDTH,
   Terrain,
 } from "../src/engine/types.ts";
-import type { CourseConfig, Course, Position } from "../src/engine/types.ts";
 import { validateMove } from "../src/engine/validation.ts";
 import type { CourseMetrics } from "./types.ts";
 
@@ -24,10 +24,7 @@ function posEq(a: Position, b: Position): boolean {
  * Get all valid landings from a position, trying every direction and distance 1-6.
  * Returns deduplicated landing positions with the move details.
  */
-function getValidMoves(
-  course: Course,
-  from: Position,
-): { to: Position; holesOut: boolean }[] {
+function getValidMoves(course: Course, from: Position): { to: Position; holesOut: boolean }[] {
   const seen = new Set<string>();
   const results: { to: Position; holesOut: boolean }[] = [];
 
@@ -62,7 +59,8 @@ function bfsOptimalStrokes(course: Course): number {
   visited.add(posKey(start));
 
   while (queue.length > 0) {
-    const current = queue.shift()!;
+    const current = queue.shift();
+    if (!current) break;
 
     const moves = getValidMoves(course, current.pos);
     for (const move of moves) {
@@ -86,10 +84,7 @@ function bfsOptimalStrokes(course: Course): number {
 
 const MAX_PATHS = 50;
 
-function dfsNearOptimalPaths(
-  course: Course,
-  optimal: number,
-): Position[][] {
+function dfsNearOptimalPaths(course: Course, optimal: number): Position[][] {
   if (!Number.isFinite(optimal)) return [];
 
   const maxStrokes = optimal + 1;
@@ -136,7 +131,8 @@ function computeBranchingFactor(course: Course, optimal: number): number {
   let holeReached: Position | null = null;
 
   outer: while (queue.length > 0) {
-    const current = queue.shift()!;
+    const current = queue.shift();
+    if (!current) break outer;
     const moves = getValidMoves(course, current);
 
     for (const move of moves) {
@@ -202,7 +198,8 @@ function bfsReachableCells(course: Course): Set<string> {
   reachable.add(posKey(course.tee));
 
   while (queue.length > 0) {
-    const current = queue.shift()!;
+    const current = queue.shift();
+    if (!current) break;
     const moves = getValidMoves(course, current);
 
     for (const move of moves) {
@@ -275,10 +272,7 @@ function computeDeadCellRatio(course: Course, reachable: Set<string>): number {
 
 // ---- Choke points ----
 
-function computeChokePoints(
-  course: Course,
-  paths: Position[][],
-): number {
+function computeChokePoints(course: Course, paths: Position[][]): number {
   if (paths.length <= 1) return 0;
 
   // Count cells present in ALL paths, excluding tee and hole
@@ -287,13 +281,11 @@ function computeChokePoints(
 
   // Build intersection: start with cells from first path, intersect with rest
   const firstPathCells = new Set(
-    paths[0]!.map(posKey).filter((k) => k !== teeKey && k !== holeKey),
+    paths[0]?.map(posKey).filter((k) => k !== teeKey && k !== holeKey),
   );
 
   for (let i = 1; i < paths.length; i++) {
-    const pathCells = new Set(
-      paths[i]!.map(posKey).filter((k) => k !== teeKey && k !== holeKey),
-    );
+    const pathCells = new Set(paths[i]?.map(posKey).filter((k) => k !== teeKey && k !== holeKey));
     for (const cell of firstPathCells) {
       if (!pathCells.has(cell)) {
         firstPathCells.delete(cell);

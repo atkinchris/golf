@@ -1,12 +1,7 @@
 import type { OpenRouter } from "@openrouter/sdk";
-import type { CourseConfig, Course } from "../src/engine/types.ts";
+import type { Course, CourseConfig } from "../src/engine/types.ts";
 import { serialiseCourse } from "./serialise.ts";
-import type {
-  PlayedCourse,
-  ConfigProposal,
-  ArchetypeProposal,
-  IterationLog,
-} from "./types.ts";
+import type { ArchetypeProposal, ConfigProposal, IterationLog, PlayedCourse } from "./types.ts";
 
 // ---- Bounds ----
 
@@ -60,10 +55,7 @@ export function clampProposal(
 // ---- Apply proposals ----
 
 /** Create a new config with proposed values applied. */
-export function applyProposals(
-  config: CourseConfig,
-  proposals: ConfigProposal[],
-): CourseConfig {
+export function applyProposals(config: CourseConfig, proposals: ConfigProposal[]): CourseConfig {
   const result = { ...config };
   for (const proposal of proposals) {
     result[proposal.field] = proposal.proposedValue;
@@ -131,21 +123,15 @@ function buildUserPrompt(
   // Previous iterations history
   if (previousIterations.length > 0) {
     sections.push("\n## Previous Iterations");
-    sections.push(
-      "Learn from these - do not repeat changes that had no positive effect.",
-    );
+    sections.push("Learn from these - do not repeat changes that had no positive effect.");
     for (const iter of previousIterations) {
       sections.push(`\n### Iteration ${iter.iteration}`);
       sections.push(`Config: ${JSON.stringify(iter.config)}`);
-      sections.push(
-        `Mean metrics: ${JSON.stringify(iter.metricsDistribution.mean)}`,
-      );
+      sections.push(`Mean metrics: ${JSON.stringify(iter.metricsDistribution.mean)}`);
       if (iter.proposals.length > 0) {
         sections.push("Changes made:");
         for (const p of iter.proposals) {
-          sections.push(
-            `  - ${p.field}: ${p.currentValue} -> ${p.proposedValue} (${p.reasoning})`,
-          );
+          sections.push(`  - ${p.field}: ${p.currentValue} -> ${p.proposedValue} (${p.reasoning})`);
         }
       }
     }
@@ -154,7 +140,8 @@ function buildUserPrompt(
   // Played courses
   sections.push("\n## Played Courses");
   for (let i = 0; i < playedCourses.length; i++) {
-    const played = playedCourses[i]!;
+    const played = playedCourses[i];
+    if (!played) continue;
     const course = courses[i];
     sections.push(`\n### Course: ${played.seed}`);
 
@@ -165,8 +152,12 @@ function buildUserPrompt(
       sections.push("```");
     }
 
-    sections.push(`Metrics: optimal=${played.metrics.optimalStrokes}, routes=${played.metrics.routeCount}, branching=${played.metrics.branchingFactor}, hazardRelevance=${played.metrics.hazardRelevance}, deadCells=${played.metrics.deadCellRatio}, chokes=${played.metrics.chokePoints}`);
-    sections.push(`Play rating: strokes=${played.rating.strokes}, decisionQuality=${played.rating.decisionQuality}/5, tensionMoments=${played.rating.tensionMoments}, boringTurns=${played.rating.boringTurns}`);
+    sections.push(
+      `Metrics: optimal=${played.metrics.optimalStrokes}, routes=${played.metrics.routeCount}, branching=${played.metrics.branchingFactor}, hazardRelevance=${played.metrics.hazardRelevance}, deadCells=${played.metrics.deadCellRatio}, chokes=${played.metrics.chokePoints}`,
+    );
+    sections.push(
+      `Play rating: strokes=${played.rating.strokes}, decisionQuality=${played.rating.decisionQuality}/5, tensionMoments=${played.rating.tensionMoments}, boringTurns=${played.rating.boringTurns}`,
+    );
     sections.push(`Notes: ${played.rating.notes}`);
   }
 
@@ -219,12 +210,7 @@ function parseResponse(
 
       const field = change.field as keyof CourseConfig;
       const currentValue = currentConfig[field];
-      const clampedValue = clampProposal(
-        field,
-        currentValue,
-        change.proposedValue,
-        currentConfig,
-      );
+      const clampedValue = clampProposal(field, currentValue, change.proposedValue, currentConfig);
 
       proposals.push({
         field,
@@ -267,12 +253,7 @@ export async function evaluate(
   currentConfig: CourseConfig,
   previousIterations: IterationLog[],
 ): Promise<{ proposals: ConfigProposal[]; archetypeIdeas: ArchetypeProposal[] }> {
-  const userPrompt = buildUserPrompt(
-    playedCourses,
-    courses,
-    currentConfig,
-    previousIterations,
-  );
+  const userPrompt = buildUserPrompt(playedCourses, courses, currentConfig, previousIterations);
 
   try {
     const response = await client.chat.send({

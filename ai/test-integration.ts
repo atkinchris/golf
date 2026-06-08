@@ -1,6 +1,6 @@
 import { generateCourse } from "../src/engine/course.ts";
-import { GRID_WIDTH, GRID_HEIGHT, DEFAULT_COURSE_CONFIG } from "../src/engine/types.ts";
-import { computeMetrics, generateAndMeasureBatch, filterAndRank } from "./metrics.ts";
+import { DEFAULT_COURSE_CONFIG, GRID_HEIGHT, GRID_WIDTH } from "../src/engine/types.ts";
+import { computeMetrics, filterAndRank, generateAndMeasureBatch } from "./metrics.ts";
 import { serialiseCourse } from "./serialise.ts";
 
 // Test 1: Metrics computation
@@ -10,8 +10,14 @@ const metrics = computeMetrics(course);
 console.assert(metrics.optimalStrokes >= 1, "optimalStrokes should be >= 1");
 console.assert(metrics.routeCount >= 0, "routeCount should be >= 0");
 console.assert(metrics.branchingFactor >= 0, "branchingFactor should be >= 0");
-console.assert(metrics.hazardRelevance >= 0 && metrics.hazardRelevance <= 1, "hazardRelevance should be 0-1");
-console.assert(metrics.deadCellRatio >= 0 && metrics.deadCellRatio <= 1, "deadCellRatio should be 0-1");
+console.assert(
+  metrics.hazardRelevance >= 0 && metrics.hazardRelevance <= 1,
+  "hazardRelevance should be 0-1",
+);
+console.assert(
+  metrics.deadCellRatio >= 0 && metrics.deadCellRatio <= 1,
+  "deadCellRatio should be 0-1",
+);
 console.log("  PASS:", JSON.stringify(metrics));
 
 // Test 2: Serialisation
@@ -35,7 +41,7 @@ console.log("\nTest 4: Deterministic generation");
 const batch2 = generateAndMeasureBatch(5, 0, DEFAULT_COURSE_CONFIG);
 for (let i = 0; i < 5; i++) {
   console.assert(
-    batch[i]!.metrics.optimalStrokes === batch2[i]!.metrics.optimalStrokes,
+    batch[i]?.metrics.optimalStrokes === batch2[i]?.metrics.optimalStrokes,
     `Course ${i} should be deterministic`,
   );
 }

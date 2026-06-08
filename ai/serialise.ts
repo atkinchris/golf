@@ -34,10 +34,10 @@ export function serialiseCourse(course: Course): string {
   lines.push("");
 
   // Column numbers header
-  lines.push("   " + Array.from({ length: course.width }, (_, i) => (i % 10).toString()).join(""));
+  lines.push(`   ${Array.from({ length: course.width }, (_, i) => (i % 10).toString()).join("")}`);
 
   for (let y = 0; y < course.height; y++) {
-    let row = String(y).padStart(2, " ") + " ";
+    let row = `${String(y).padStart(2, " ")} `;
     for (let x = 0; x < course.width; x++) {
       if (x === course.tee.x && y === course.tee.y) {
         row += "O";

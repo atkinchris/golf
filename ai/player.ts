@@ -1,11 +1,11 @@
-import { OpenRouter } from "@openrouter/sdk";
+import type { OpenRouter } from "@openrouter/sdk";
 import type { ChatMessages } from "@openrouter/sdk/models";
+import { PRNG } from "../src/engine/prng.ts";
 import type { Course, Direction, Position } from "../src/engine/types.ts";
 import { DIRECTIONS, Terrain } from "../src/engine/types.ts";
-import { getTerrainModifier, validateMove, getCell } from "../src/engine/validation.ts";
-import { PRNG } from "../src/engine/prng.ts";
+import { getCell, getTerrainModifier, validateMove } from "../src/engine/validation.ts";
 import { serialiseCourse } from "./serialise.ts";
-import type { MoveRecord, PlayRating, PlayedCourse, CourseMetrics } from "./types.ts";
+import type { CourseMetrics, MoveRecord, PlayedCourse, PlayRating } from "./types.ts";
 
 // ---- Constants ----
 
@@ -65,11 +65,7 @@ function parseMove(response: string): ParsedMove | null {
 }
 
 /** Find valid directions for a given distance from a position. */
-function getValidDirections(
-  course: Course,
-  from: Position,
-  distance: number,
-): Direction[] {
+function getValidDirections(course: Course, from: Position, distance: number): Direction[] {
   return DIRECTIONS.filter((dir) => {
     const result = validateMove(course, from, dir, distance);
     return result.valid;
@@ -147,10 +143,7 @@ async function rateGame(
     `{"strokes": ${moves.length}, "decisionQuality": <1-5>, "tensionMoments": <count>, "boringTurns": <count>, "notes": "brief notes"}`,
   ].join("\n");
 
-  const ratingMessages: ChatMessages[] = [
-    ...messages,
-    { role: "user", content: ratingPrompt },
-  ];
+  const ratingMessages: ChatMessages[] = [...messages, { role: "user", content: ratingPrompt }];
 
   const response = await chatCompletion(client, model, ratingMessages, 0.2, 200);
 
@@ -258,7 +251,7 @@ export async function playGame(
         chosenDir = parsed.direction;
       } else if (dirs.length > 0) {
         // LLM chose an invalid direction - fall back
-        chosenDir = dirs[0]!;
+        chosenDir = dirs[0] ?? "N";
         reasoning = `[fallback: ${parsed.direction} invalid] ${reasoning}`;
       } else {
         // No valid directions for chosen mode - try the other mode
@@ -271,9 +264,9 @@ export async function playGame(
       // Parse failed entirely - fall back
       usePutt = false;
       if (validDirs.length > 0) {
-        chosenDir = validDirs[0]!;
+        chosenDir = validDirs[0] ?? "N";
       } else if (puttDirs.length > 0) {
-        chosenDir = puttDirs[0]!;
+        chosenDir = puttDirs[0] ?? "N";
         usePutt = true;
       } else {
         chosenDir = "N";

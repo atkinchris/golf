@@ -1,19 +1,19 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { OpenRouter } from "@openrouter/sdk";
-import type { CourseConfig, Course } from "../src/engine/types.ts";
+import type { Course, CourseConfig } from "../src/engine/types.ts";
 import { DEFAULT_COURSE_CONFIG } from "../src/engine/types.ts";
-import { generateAndMeasureBatch, filterAndRank } from "./metrics.ts";
+import { applyProposals, evaluate } from "./evaluator.ts";
+import { filterAndRank, generateAndMeasureBatch } from "./metrics.ts";
 import { playGame } from "./player.ts";
-import { evaluate, applyProposals } from "./evaluator.ts";
 import type {
-  CliOptions,
-  IterationLog,
-  RunLog,
-  PlayedCourse,
-  CourseMetrics,
-  ConfigProposal,
   ArchetypeProposal,
+  CliOptions,
+  ConfigProposal,
+  CourseMetrics,
+  IterationLog,
+  PlayedCourse,
+  RunLog,
 } from "./types.ts";
 
 // ---- Helpers ----
@@ -50,9 +50,10 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-function computeMetricsDistribution(
-  batch: { course: Course; metrics: CourseMetrics }[],
-): { mean: Record<string, number>; best: Record<string, number> } {
+function computeMetricsDistribution(batch: { course: Course; metrics: CourseMetrics }[]): {
+  mean: Record<string, number>;
+  best: Record<string, number>;
+} {
   const keys: (keyof CourseMetrics)[] = [
     "optimalStrokes",
     "routeCount",
@@ -97,7 +98,7 @@ export async function runLoop(options: CliOptions): Promise<void> {
   const client = new OpenRouter({ apiKey });
 
   // Set up results directory
-  const resultsDir = join(import.meta.dirname!, "results");
+  const resultsDir = join(import.meta.dirname ?? ".", "results");
   mkdirSync(resultsDir, { recursive: true });
 
   // Resume or start fresh
@@ -130,7 +131,9 @@ export async function runLoop(options: CliOptions): Promise<void> {
   const startingConfig = { ...config };
 
   console.log(separator());
-  console.log(`Starting loop: ${options.iterations} iterations, batch=${options.batchSize}, play=${options.playCount}`);
+  console.log(
+    `Starting loop: ${options.iterations} iterations, batch=${options.batchSize}, play=${options.playCount}`,
+  );
   console.log(`Model: ${options.model}`);
   console.log(`Output: ${outputPath}`);
   console.log(separator());
@@ -183,7 +186,10 @@ export async function runLoop(options: CliOptions): Promise<void> {
           console.error(`Progress saved to ${outputPath}`);
           process.exit(1);
         }
-        console.error(`  Error playing ${entry.course.seed}:`, error instanceof Error ? error.message : error);
+        console.error(
+          `  Error playing ${entry.course.seed}:`,
+          error instanceof Error ? error.message : error,
+        );
       }
     }
 
@@ -207,9 +213,7 @@ export async function runLoop(options: CliOptions): Promise<void> {
     }
 
     // Log average decision quality
-    const avgDecisionQuality = round2(
-      mean(playedCourses.map((p) => p.rating.decisionQuality)),
-    );
+    const avgDecisionQuality = round2(mean(playedCourses.map((p) => p.rating.decisionQuality)));
     console.log(`\nAverage decision quality: ${avgDecisionQuality}/5`);
 
     // Step g: Evaluate
