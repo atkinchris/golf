@@ -18,6 +18,35 @@ import type {
 
 // ---- Helpers ----
 
+const TYPES_FILE = join(import.meta.dirname!, "..", "src", "engine", "types.ts");
+
+/** Write the final config back to src/engine/types.ts. */
+function applyConfigToSource(config: CourseConfig): void {
+  const source = readFileSync(TYPES_FILE, "utf-8");
+
+  const configBlock = `export const DEFAULT_COURSE_CONFIG: CourseConfig = {
+  islandSizeMin: ${config.islandSizeMin},
+  islandSizeMax: ${config.islandSizeMax},
+  treeDensity: ${config.treeDensity},
+  sandTrapCount: ${config.sandTrapCount},
+  waterProbability: ${config.waterProbability},
+  slopeCount: ${config.slopeCount},
+};`;
+
+  const replaced = source.replace(
+    /export const DEFAULT_COURSE_CONFIG: CourseConfig = \{[^}]+\};/,
+    configBlock,
+  );
+
+  if (replaced === source) {
+    console.error("\nFailed to apply config: could not find DEFAULT_COURSE_CONFIG in types.ts");
+    return;
+  }
+
+  writeFileSync(TYPES_FILE, replaced);
+  console.log("\nApplied final config to src/engine/types.ts");
+}
+
 /** HTTP status codes that indicate a fatal, non-retryable API problem. */
 const FATAL_STATUS_CODES = new Set([401, 402, 403]);
 
@@ -321,4 +350,9 @@ export async function runLoop(options: CliOptions): Promise<void> {
   }
 
   console.log(`\nResults saved to ${outputPath}`);
+
+  // Apply final config to source code if requested
+  if (options.apply) {
+    applyConfigToSource(runLog.finalConfig);
+  }
 }

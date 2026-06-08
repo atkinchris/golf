@@ -34,6 +34,9 @@ function parseArgs(args: string[]): CliOptions {
         options.resume = next;
         i++;
         break;
+      case "--apply":
+        options.apply = true;
+        break;
       case "--help":
         printHelp();
         process.exit(0);
@@ -55,6 +58,7 @@ Options:
   --play-count <n>   Courses played per iteration after filtering (default: 10)
   --model <slug>     OpenRouter model slug (default: anthropic/claude-sonnet-4)
   --resume <path>    Path to a previous run JSON file to continue from
+  --apply            Write the final config back to src/engine/types.ts
   --help             Show this help message
 
 Environment:
@@ -75,6 +79,7 @@ console.log(`Iterations: ${options.iterations}`);
 console.log(`Batch size: ${options.batchSize}`);
 console.log(`Play count: ${options.playCount}`);
 if (options.resume) console.log(`Resuming from: ${options.resume}`);
+if (options.apply) console.log("Will apply final config to src/engine/types.ts");
 console.log("");
 
 runLoop(options).catch((err: unknown) => {

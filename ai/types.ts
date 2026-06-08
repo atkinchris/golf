@@ -86,4 +86,5 @@ export interface CliOptions {
   playCount: number;
   model: string;
   resume?: string;
+  apply?: boolean;
 }
