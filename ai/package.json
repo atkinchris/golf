@@ -1,0 +1,16 @@
+{
+  "name": "dice-golf-ai",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "iterate": "tsx cli.ts"
+  },
+  "dependencies": {
+    "@openrouter/sdk": "^0.12.79"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0",
+    "typescript": "~5.8.0"
+  }
+}
