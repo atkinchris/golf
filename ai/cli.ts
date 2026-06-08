@@ -6,7 +6,7 @@ function parseArgs(args: string[]): CliOptions {
     iterations: 5,
     batchSize: 100,
     playCount: 10,
-    model: "anthropic/claude-sonnet-4",
+    model: "deepseek/deepseek-v4-flash",
   };
 
   for (let i = 0; i < args.length; i++) {
