@@ -29,12 +29,23 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-/** Extract the first JSON object from text that may include markdown fencing. */
+/** Extract the first JSON object from text that may include markdown fencing or prose. */
 function extractJson(text: string): string | null {
   // Strip markdown code fences if present
   const stripped = text.replace(/```(?:json)?\s*/g, "").replace(/```/g, "");
-  const match = stripped.match(/\{[^}]*\}/);
-  return match?.[0] ?? null;
+
+  // Find the first { and match to its closing } (handles nesting)
+  const start = stripped.indexOf("{");
+  if (start === -1) return null;
+
+  let depth = 0;
+  for (let i = start; i < stripped.length; i++) {
+    if (stripped[i] === "{") depth++;
+    else if (stripped[i] === "}") depth--;
+    if (depth === 0) return stripped.slice(start, i + 1);
+  }
+
+  return null;
 }
 
 interface ParsedMove {
@@ -271,7 +282,7 @@ export async function playGame(
       } else {
         chosenDir = "N";
       }
-      reasoning = "[fallback: failed to parse LLM response]";
+      reasoning = `[fallback: failed to parse LLM response] ${response.slice(0, 80)}`;
     }
 
     const distance = usePutt ? 1 : effectiveRoll;
