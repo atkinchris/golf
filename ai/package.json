@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "iterate": "tsx cli.ts"
+    "iterate": "tsx cli.ts",
+    "test": "tsx test-integration.ts"
   },
   "dependencies": {
     "@openrouter/sdk": "^0.12.79"
