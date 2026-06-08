@@ -255,29 +255,30 @@ export async function evaluate(
 ): Promise<{ proposals: ConfigProposal[]; archetypeIdeas: ArchetypeProposal[] }> {
   const userPrompt = buildUserPrompt(playedCourses, courses, currentConfig, previousIterations);
 
+  const response = await client.chat.send({
+    chatRequest: {
+      model,
+      messages: [
+        { role: "system" as const, content: SYSTEM_PROMPT },
+        { role: "user" as const, content: userPrompt },
+      ],
+      temperature: 0.4,
+      maxTokens: 4000,
+      stream: false,
+    },
+  });
+
+  const content = response.choices?.[0]?.message?.content;
+  if (typeof content !== "string" || content.length === 0) {
+    console.error("Evaluator: empty response from LLM");
+    return { proposals: [], archetypeIdeas: [] };
+  }
+
   try {
-    const response = await client.chat.send({
-      chatRequest: {
-        model,
-        messages: [
-          { role: "system" as const, content: SYSTEM_PROMPT },
-          { role: "user" as const, content: userPrompt },
-        ],
-        temperature: 0.4,
-        maxTokens: 1000,
-        stream: false,
-      },
-    });
-
-    const content = response.choices?.[0]?.message?.content;
-    if (typeof content !== "string" || content.length === 0) {
-      console.error("Evaluator: empty response from LLM");
-      return { proposals: [], archetypeIdeas: [] };
-    }
-
     return parseResponse(content, currentConfig);
   } catch (error) {
     console.error("Evaluator: failed to parse LLM response", error);
+    console.error("Evaluator: raw response (last 300 chars):", content.slice(-300));
     return { proposals: [], archetypeIdeas: [] };
   }
 }
