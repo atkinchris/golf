@@ -1,4 +1,12 @@
-import { dogleg, forestSlalom, fortressGreen, gauntlet, islandHop, slopedAmphitheatre, splitDecision } from "./archetypes";
+import {
+  dogleg,
+  forestSlalom,
+  fortressGreen,
+  gauntlet,
+  islandHop,
+  slopedAmphitheatre,
+  splitDecision,
+} from "./archetypes";
 import { createGrid, isReachable, placeSlopes, setTerrain, validateWaterInvariant } from "./island";
 import { PRNG } from "./prng";
 import {

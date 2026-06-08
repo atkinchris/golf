@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { dogleg, forestSlalom, fortressGreen, gauntlet, islandHop, slopedAmphitheatre, splitDecision } from "./archetypes";
+import {
+  dogleg,
+  forestSlalom,
+  fortressGreen,
+  gauntlet,
+  islandHop,
+  slopedAmphitheatre,
+  splitDecision,
+} from "./archetypes";
 import { createGrid } from "./island";
 import { PRNG } from "./prng";
 import { DEFAULT_COURSE_CONFIG, type Position, Terrain } from "./types";

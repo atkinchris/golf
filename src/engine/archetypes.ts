@@ -415,13 +415,7 @@ export function forestSlalom(
 ): void {
   // Step 1: Place one large fairway island spanning most of the grid
   const margin = 1;
-  placeIsland(
-    grid,
-    width,
-    height,
-    { x: margin, y: 2, w: width - margin * 2, h: height - 4 },
-    rng,
-  );
+  placeIsland(grid, width, height, { x: margin, y: 2, w: width - margin * 2, h: height - 4 }, rng);
 
   // Step 2: Place 3-4 diagonal tree lines across the fairway
   const lineCount = rng.int(3, 4);

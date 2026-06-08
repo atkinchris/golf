@@ -18,7 +18,7 @@ import type {
 
 // ---- Helpers ----
 
-const TYPES_FILE = join(import.meta.dirname!, "..", "src", "engine", "types.ts");
+const TYPES_FILE = join(import.meta.dirname ?? "", "..", "src", "engine", "types.ts");
 
 /** Write the final config back to src/engine/types.ts. */
 function applyConfigToSource(config: CourseConfig): void {

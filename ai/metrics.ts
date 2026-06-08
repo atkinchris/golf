@@ -132,7 +132,7 @@ function computeBranchingFactor(course: Course, optimal: number): number {
 
   outer: while (queue.length > 0) {
     const current = queue.shift();
-    if (!current) break outer;
+    if (!current) break;
     const moves = getValidMoves(course, current);
 
     for (const move of moves) {
