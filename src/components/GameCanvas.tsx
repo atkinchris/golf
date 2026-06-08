@@ -355,15 +355,17 @@ function drawShotPath(
   ctx.setLineDash([]);
   ctx.lineDashOffset = 0;
 
+  if (pts.length === 0) return;
+
   ctx.beginPath();
-  ctx.moveTo(pts[0]?.x, pts[0]?.y);
+  ctx.moveTo(pts[0]!.x, pts[0]!.y);
 
   for (let i = 1; i < pts.length - 1; i++) {
-    ctx.arcTo(pts[i]?.x, pts[i]?.y, pts[i + 1]?.x, pts[i + 1]?.y, cornerRadius);
+    ctx.arcTo(pts[i]!.x, pts[i]!.y, pts[i + 1]!.x, pts[i + 1]!.y, cornerRadius);
   }
 
   // Draw to the final point
-  ctx.lineTo(pts[pts.length - 1]?.x, pts[pts.length - 1]?.y);
+  ctx.lineTo(pts[pts.length - 1]!.x, pts[pts.length - 1]!.y);
 
   ctx.stroke();
 }
